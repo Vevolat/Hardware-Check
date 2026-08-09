@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>硬件监测</title>
+<style>
+/* ================================================================
+   CSS 变量 — 白色简约（默认）/ 暗色（夜间自动切换）
+   ================================================================ */
+:root {
+  --bg:            #f5f5f7;
+  --bg-elevated:   #ffffff;
+  --bg-card:       #ffffff;
+  --bg-hover:      #f0f0f3;
+  --bg-input:      #f8f9fa;
+  --border:        #e5e7eb;
+  --border-light:  #e5e7eb;
+  --text:          #1f2937;
+  --text-secondary:#6b7280;
+  --text-muted:    #9ca3af;
+  --accent:        #3b82f6;
+  --accent-hover:  #2563eb;
+  --accent-subtle: rgba(59,130,246,0.08);
+  --green:         #10b981;
+  --green-subtle:  rgba(16,185,129,0.08);
+  --red:           #ef4444;
+  --red-subtle:    rgba(239,68,68,0.08);
+  --yellow:        #f59e0b;
+  --yellow-subtle: rgba(245,158,11,0.08);
+  --orange:        #f97316;
+  --orange-subtle: rgba(249,115,22,0.08);
+  --purple:        #8b5cf6;
+  --purple-subtle: rgba(139,92,246,0.08);
+  --cyan:          #06b6d4;
+  --cyan-subtle:   rgba(6,182,212,0.08);
+  --shadow-sm:     0 1px 3px rgba(0,0,0,.06);
+  --shadow:        0 4px 24px rgba(0,0,0,.06);
+  --shadow-lg:     0 12px 40px rgba(0,0,0,.08);
+  --radius:        16px;
+  --radius-sm:     10px;
+  --radius-xs:     6px;
+  --transition:    0.2s cubic-bezier(0.4,0,0.2,1);
+  --max-w:         1120px;
+}
+
+/* 夜间自动切换 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:            #0f1117;
+    --bg-elevated:   #1a1d27;
+    --bg-card:       #1e2130;
+    --bg-hover:      #252a38;
+    --bg-input:      #161822;
+    --border:        #2a2d3a;
+    --border-light:  #353849;
+    --text:          #e8eaed;
+    --text-secondary:#9aa0b0;
+    --text-muted:    #6b7084;
+    --accent:        #6c8cff;
+    --accent-hover:  #8ba3ff;
+    --accent-subtle: rgba(108,140,255,0.12);
+    --green:         #34d399;
+    --green-subtle:  rgba(52,211,153,0.12);
+    --red:           #f87171;
+    --red-subtle:    rgba(248,113,113,0.12);
+    --yellow:        #fbbf24;
+    --yellow-subtle: rgba(251,191,36,0.12);
+    --orange:        #fb923c;
+    --orange-subtle: rgba(251,146,60,0.12);
+    --purple:        #a78bfa;
+    --purple-subtle: rgba(167,139,250,0.12);
+    --cyan:          #22d3ee;
+    --cyan-subtle:   rgba(34,211,238,0.12);
+    --shadow-sm:     0 1px 3px rgba(0,0,0,.3);
+    --shadow:        0 4px 24px rgba(0,0,0,.4);
+    --shadow-lg:     0 12px 40px rgba(0,0,0,.5);
+  }
+}
+
+/* ================================================================
+   基础重置
+   ================================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;
+}
+body.no-scroll{overflow:hidden}
+
+/* ================================================================
+   页面容器
+   ================================================================ */
+.page{display:none;min-height:100vh;animation:fadeSlideIn .35s ease}
+.page.active{display:flex;flex-direction:column}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes keyGlow{
+  0%,100%{box-shadow:0 0 6px var(--accent-subtle),0 0 16px rgba(59,130,246,.15)}
+  50%{box-shadow:0 0 12px var(--accent),0 0 28px rgba(59,130,246,.3)}
+}
+
+/* ================================================================
+   导航栏
+   ================================================================ */
+.nav-bar{
+  display:flex;align-items:center;gap:14px;padding:14px 24px;
+  border-bottom:1px solid var(--border);background:var(--bg-elevated);
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);
+}
+.nav-bar .back-btn{
+  display:flex;align-items:center;gap:6px;
+  background:var(--bg-input);color:var(--text-secondary);
+  border:1px solid var(--border);padding:7px 14px;border-radius:var(--radius-xs);
+  cursor:pointer;font-size:.84rem;transition:all var(--transition);font-family:inherit;
+}
+.nav-bar .back-btn:hover{background:var(--bg-hover);color:var(--text);border-color:var(--text-muted)}
+.nav-bar .back-btn svg{width:16px;height:16px}
+.nav-bar .page-title{font-size:1.05rem;font-weight:600;color:var(--text)}
+.nav-bar .nav-status{margin-left:auto;font-size:.78rem;color:var(--text-muted);display:flex;align-items:center;gap:8px}
+.nav-bar .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.nav-bar .status-dot.idle{background:var(--text-muted)}
+.nav-bar .status-dot.active-dot{background:var(--green);animation:pulse 1.5s infinite}
+
+/* ================================================================
+   主页 — 极简卡片网格
+   ================================================================ */
+.home-container{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:48px 24px;
+}
+.card-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:20px;width:100%;max-width:var(--max-w);
+}
+.detection-card{
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:36px 28px 32px;cursor:pointer;
+  transition:all var(--transition);text-align:center;
+  color:var(--text);font-family:inherit;
+  box-shadow:var(--shadow-sm);
+}
+.detection-card:hover{
+  background:var(--bg-hover);border-color:var(--text-muted);
+  transform:translateY(-4px);box-shadow:var(--shadow-lg);
+}
+.detection-card .card-icon-wrap{
+  width:64px;height:64px;border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform var(--transition);
+}
+.detection-card:hover .card-icon-wrap{transform:scale(1.06)}
+.card-icon-wrap.mouse{background:var(--accent-subtle);color:var(--accent)}
+.card-icon-wrap.keyboard{background:var(--green-subtle);color:var(--green)}
+.card-icon-wrap.gamepad{background:var(--purple-subtle);color:var(--purple)}
+.card-icon-wrap.screen{background:var(--orange-subtle);color:var(--orange)}
+.card-icon-wrap svg{width:28px;height:28px}
+.detection-card .card-title{font-size:1.1rem;font-weight:650;letter-spacing:-.3px}
+.detection-card .card-desc{font-size:.82rem;color:var(--text-muted);line-height:1.5;max-width:200px}
+
+/* ================================================================
+   子页面通用
+   ================================================================ */
+.sub-content{flex:1;padding:32px 24px;max-width:var(--max-w);margin:0 auto;width:100%}
+.section-title{
+  font-size:.78rem;font-weight:650;text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--text-muted);margin-bottom:14px;
+}
+
+/* 面板 */
+.panel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:20px}
+.panel{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px 22px;
+  box-shadow:var(--shadow-sm);
+}
+.panel h3{font-size:.84rem;font-weight:600;color:var(--text-secondary);margin-bottom:12px}
+.panel .metric{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.panel .metric:last-child{border-bottom:none}
+.panel .metric-label{font-size:.8rem;color:var(--text-muted)}
+.panel .metric-value{font-size:.88rem;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text)}
+
+/* 指示灯 */
+.indicator-row{display:flex;gap:8px;flex-wrap:wrap}
+.indicator{
+  display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:var(--radius-xs);
+  background:var(--bg-input);border:1px solid var(--border);
+  font-size:.8rem;color:var(--text-muted);transition:all var(--transition);min-width:90px;
+}
+.indicator.active{border-color:var(--green);color:var(--green);background:var(--green-subtle)}
+.indicator .indicator-dot{width:8px;height:8px;border-radius:50%;background:var(--text-muted);transition:background var(--transition)}
+.indicator.active .indicator-dot{background:var(--green)}
+
+/* ================================================================
+   鼠标检测
+   ================================================================ */
+.mouse-track-zone{
+  position:relative;width:100%;height:300px;background:var(--bg-input);
+  border:2px dashed var(--border);border-radius:var(--radius);overflow:hidden;
+  margin-bottom:20px;cursor:crosshair;
+}
+.mouse-track-zone .crosshair-h{position:absolute;left:0;right:0;height:1px;background:rgba(59,130,246,.4);pointer-events:none}
+.mouse-track-zone .crosshair-v{position:absolute;top:0;bottom:0;width:1px;background:rgba(59,130,246,.4);pointer-events:none}
+.mouse-track-zone .coord-tip{
+  position:absolute;pointer-events:none;background:var(--bg-card);
+  border:1px solid var(--border);border-radius:var(--radius-xs);
+  padding:4px 10px;font-size:.74rem;color:var(--text-secondary);
+  transform:translate(12px,12px);white-space:nowrap;
+}
+.mouse-track-zone .track-hint{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  color:var(--text-muted);font-size:.85rem;pointer-events:none;
+}
+.click-ripple{
+  position:absolute;pointer-events:none;width:20px;height:20px;border-radius:50%;
+  border:2px solid var(--accent);transform:translate(-50%,-50%);
+  animation:rippleOut .6s ease-out forwards;
+}
+@keyframes rippleOut{to{width:80px;height:80px;opacity:0}}
+
+/* ================================================================
+   键盘检测 — 108 键全键盘（三区布局）
+   ================================================================ */
+.keyboard-wrap{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 14px 18px;overflow-x:auto;
+  box-shadow:var(--shadow-sm);
+}
+/* 功能键行（横跨全部区域） */
+.kb-func-row{display:flex;gap:10px;margin-bottom:6px;justify-content:center}
+.kb-func-main{display:flex;gap:4px}
+.kb-func-nav{display:flex;gap:4px}
+/* 主体三区 */
+.kb-body{display:flex;gap:10px;justify-content:center;align-items:flex-start;flex-wrap:nowrap}
+.kb-main{display:flex;flex-direction:column;gap:4px}
+.kb-nav{display:flex;flex-direction:column;gap:4px}
+.kb-nav-row{display:flex;gap:4px}
+.kb-numpad{display:grid;grid-template-columns:repeat(4,38px);grid-template-rows:repeat(5,38px);gap:4px}
+/* 按键 */
+.key-row{display:flex;gap:4px;flex-wrap:nowrap}
+.key-key{
+  height:38px;min-width:38px;padding:0 3px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg-input);border:1px solid var(--border);
+  border-radius:5px;font-size:.68rem;color:var(--text-secondary);
+  font-family:"SF Mono","Consolas","Menlo",monospace;
+  transition:all .06s ease;user-select:none;flex-shrink:0;white-space:nowrap;
+}
+.kb-numpad .key-key{width:38px;min-width:38px}
+.key-key.pressed{
+  background:var(--accent);color:#fff;border-color:var(--accent-hover);
+  transform:scale(.92);z-index:2;position:relative;
+  animation:keyGlow .6s ease-in-out infinite;
+}
+.key-key.w15{min-width:55px}.key-key.w175{min-width:70px}
+.key-key.w2{min-width:80px}.key-key.w225{min-width:90px}
+.key-key.w275{min-width:110px}.key-key.w6{min-width:240px}.key-key.w625{min-width:250px}
+.key-key.fn-key{opacity:.7;font-size:.62rem}
+.key-key.spacer{background:transparent;border:none;min-width:24px}
+.key-gap{width:24px;flex-shrink:0}
+
+.key-info-panel{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px}
+.key-history{
+  flex:1;min-width:280px;max-height:200px;overflow-y:auto;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow-sm);
+}
+.key-history-item{display:flex;gap:14px;padding:4px 0;font-size:.76rem;font-family:"SF Mono","Consolas",monospace;border-bottom:1px solid var(--border)}
+.key-history-item .kh-key{color:var(--accent);min-width:50px;font-weight:600}
+.key-history-item .kh-code{color:var(--text-muted);min-width:90px}
+.key-history-item .kh-event{min-width:30px;font-weight:600}
+.key-history-item .kh-event.down-kh{color:var(--green)}
+.key-history-item .kh-event.up-kh{color:var(--red)}
+.key-history-empty{color:var(--text-muted);font-size:.8rem;padding:8px 0}
+
+/* ================================================================
+   手柄检测
+   ================================================================ */
+.gamepad-visual-wrap{
+  position:relative;width:100%;max-width:560px;margin:0 auto;padding:10px 0;
+}
+.gamepad-visual-wrap svg{width:100%;height:auto;display:block}
+.joystick-line{stroke-linecap:round;transition:all .03s linear}
+
+.shoulder-rect{
+  rx:6;transition:all .08s ease;
+}
+.gamepad-btn-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:420px;
+}
+.gbtn{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:9px 6px;background:var(--bg-input);border:1px solid var(--border);
+  border-radius:var(--radius-xs);font-size:.7rem;color:var(--text-muted);
+  transition:all var(--transition);
+}
+.gbtn.pressed{border-color:var(--accent);color:var(--accent);background:var(--accent-subtle)}
+.gbtn .gbtn-val{font-size:.66rem;font-family:monospace;color:var(--text-secondary)}
+.axis-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:4px}
+.axis-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .05s linear}
+
+/* ================================================================
+   屏幕检测
+   ================================================================ */
+.color-test-area{
+  width:100%;height:260px;border-radius:var(--radius);border:1px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;color:rgba(128,128,128,.5);font-weight:600;
+  transition:background-color .3s ease;margin-bottom:14px;
+}
+.color-palette{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.color-swatch{
+  width:44px;height:44px;border-radius:var(--radius-xs);border:2px solid transparent;
+  cursor:pointer;transition:all var(--transition);
+}
+.color-swatch:hover{border-color:var(--text);transform:scale(1.12)}
+.color-swatch.active{border-color:var(--accent);box-shadow:0 0 14px rgba(59,130,246,.3)}
+
+.screen-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:9px 18px;
+  border-radius:var(--radius-xs);font-size:.84rem;font-weight:500;cursor:pointer;
+  border:1px solid var(--border);background:var(--bg-card);color:var(--text-secondary);
+  transition:all var(--transition);font-family:inherit;box-shadow:var(--shadow-sm);
+}
+.btn:hover{background:var(--bg-hover);color:var(--text);border-color:var(--text-muted)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+
+/* 全屏颜色测试遮罩 */
+.fullscreen-overlay{
+  display:none;position:fixed;inset:0;z-index:9999;cursor:pointer;
+  transition:background-color .3s ease;
+}
+.fullscreen-overlay.show{display:block}
+.fullscreen-overlay .fs-hint{
+  position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+  color:rgba(255,255,255,.45);font-size:.85rem;text-align:center;pointer-events:none;
+}
+.fullscreen-overlay .fs-close{
+  position:absolute;top:20px;right:20px;background:rgba(255,255,255,.1);
+  border:none;color:rgba(255,255,255,.6);padding:8px 16px;
+  border-radius:var(--radius-xs);cursor:pointer;font-size:.82rem;transition:all var(--transition);font-family:inherit;
+}
+.fullscreen-overlay .fs-close:hover{background:rgba(255,255,255,.2);color:rgba(255,255,255,.9)}
+
+/* 刷新率对比动画 — testufo 风格 */
+.refresh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:20px}
+.refresh-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);
+}
+.refresh-card .rc-header{
+  padding:11px 16px;font-size:.8rem;font-weight:600;color:var(--text-secondary);
+  border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;
+}
+.refresh-card .rc-badge{font-size:.68rem;padding:2px 8px;border-radius:99px;font-weight:500}
+.rc-badge.bad{background:var(--red-subtle);color:var(--red)}
+.rc-badge.ok{background:var(--yellow-subtle);color:var(--yellow)}
+.rc-badge.good{background:var(--green-subtle);color:var(--green)}
+.refresh-card canvas{display:block;width:100%;height:180px;background:#1a1a2e}
+
+/* 主页页脚 */
+.home-footer{
+  padding:24px 24px 32px;text-align:center;
+}
+.github-link{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:40px;height:40px;border-radius:50%;
+  color:var(--text-muted);transition:all var(--transition);
+  text-decoration:none;
+}
+.github-link:hover{color:var(--text);transform:scale(1.1)}
+.github-link svg{width:26px;height:26px}
+
+/* ================================================================
+   响应式
+   ================================================================ */
+@media(max-width:900px){
+  .card-grid{grid-template-columns:repeat(2,1fr);gap:14px}
+  .detection-card{padding:28px 20px 24px}
+  .key-key{height:32px;min-width:30px;font-size:.6rem;padding:0 2px}
+  .key-key.w15{min-width:42px}.key-key.w175{min-width:52px}
+  .key-key.w2{min-width:60px}.key-key.w225{min-width:68px}
+  .key-key.w275{min-width:80px}.key-key.w6{min-width:160px}.key-key.w625{min-width:168px}
+  .keyboard-wrap{padding:10px 6px}
+  .kb-numpad{grid-template-columns:repeat(4,30px);grid-template-rows:repeat(5,32px)}
+  .kb-numpad .key-key{width:30px;min-width:30px;height:32px}
+  .kb-body{gap:6px}.kb-func-row{gap:6px}
+}
+@media(max-width:600px){
+  .card-grid{grid-template-columns:1fr;max-width:360px}
+  .home-container{padding:32px 16px}
+  .nav-bar{padding:10px 14px}
+  .sub-content{padding:20px 14px}
+  .panel-grid{grid-template-columns:1fr}
+  .mouse-track-zone{height:200px}
+  .color-test-area{height:180px}
+  .key-key{height:28px;min-width:26px;font-size:.55rem}
+  .key-key.w6{min-width:120px}.key-key.w275{min-width:60px}.key-key.w625{min-width:126px}
+  .key-gap{width:12px}
+  .kb-numpad{grid-template-columns:repeat(4,26px);grid-template-rows:repeat(5,28px)}
+  .kb-numpad .key-key{width:26px;min-width:26px;height:28px}
+  .gamepad-btn-grid{grid-template-columns:repeat(3,1fr)}
+  .refresh-grid{grid-template-columns:1fr}
+  .indicator-row{flex-direction:column}
+  .screen-actions{flex-direction:column}
+  .btn{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== 主页 ==================== -->
+<div id="home-page" class="page active">
+  <div class="home-container">
+    <div class="card-grid">
+      <button class="detection-card" onclick="navigateTo('mouse')">
+        <div class="card-icon-wrap mouse">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="3" width="12" height="18" rx="6"/><line x1="12" y1="7" x2="12" y2="11"/>
+          </svg>
+        </div>
+        <div class="card-title">鼠标检测</div>
+        <div class="card-desc">坐标追踪 · 按键响应 · 滚轮方向</div>
+      </button>
+
+      <button class="detection-card" onclick="navigateTo('keyboard')">
+        <div class="card-icon-wrap keyboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="2"/>
+            <line x1="6" y1="10" x2="6" y2="14"/><line x1="10" y1="10" x2="10" y2="14"/>
+            <line x1="14" y1="10" x2="14" y2="14"/><line x1="18" y1="10" x2="18" y2="14"/>
+          </svg>
+        </div>
+        <div class="card-title">键盘检测</div>
+        <div class="card-desc">108键全键映射 · 实时高亮反馈</div>
+      </button>
+
+      <button class="detection-card" onclick="navigateTo('gamepad')">
+        <div class="card-icon-wrap gamepad">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="6" y1="11" x2="10" y2="11"/><line x1="8" y1="9" x2="8" y2="13"/>
+            <line x1="15" y1="12" x2="15.01" y2="12"/><line x1="18" y1="10" x2="18.01" y2="10"/>
+            <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>
+          </svg>
+        </div>
+        <div class="card-title">手柄检测</div>
+        <div class="card-desc">摇杆可视化 · 肩键状态 · 按键反馈</div>
+      </button>
+
+      <button class="detection-card" onclick="navigateTo('screen')">
+        <div class="card-icon-wrap screen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <div class="card-title">屏幕检测</div>
+        <div class="card-desc">坏点检测 · 色彩测试 · 刷新率对比</div>
+      </button>
+    </div>
+  </div>
+  <footer class="home-footer">
+    <a href="https://github.com/Vevolat/Hardware-Check" target="_blank" rel="noopener" class="github-link" aria-label="GitHub Repository">
+      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+    </a>
+  </footer>
+</div>
+
+<!-- ==================== 鼠标检测 ==================== -->
+<div id="mouse-page" class="page">
+  <div class="nav-bar">
+    <button class="back-btn" onclick="navigateTo('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      返回
+    </button>
+    <span class="page-title">鼠标检测</span>
+    <span class="nav-status"><span class="status-dot" id="mouse-status-dot"></span><span id="mouse-status-text">监测中</span></span>
+  </div>
+  <div class="sub-content">
+    <p class="section-title">移动追踪</p>
+    <div class="mouse-track-zone" id="mouse-track-zone">
+      <div class="crosshair-h" id="crosshair-h"></div>
+      <div class="crosshair-v" id="crosshair-v"></div>
+      <div class="coord-tip" id="coord-tip">X: 0, Y: 0</div>
+      <div class="track-hint">在此区域内移动鼠标</div>
+    </div>
+    <div class="panel-grid">
+      <div class="panel">
+        <h3>坐标信息</h3>
+        <div class="metric"><span class="metric-label">页面 X</span><span class="metric-value" id="m-page-x">0</span></div>
+        <div class="metric"><span class="metric-label">页面 Y</span><span class="metric-value" id="m-page-y">0</span></div>
+        <div class="metric"><span class="metric-label">视口 X</span><span class="metric-value" id="m-client-x">0</span></div>
+        <div class="metric"><span class="metric-label">视口 Y</span><span class="metric-value" id="m-client-y">0</span></div>
+      </div>
+      <div class="panel">
+        <h3>按键状态</h3>
+        <div class="indicator-row">
+          <div class="indicator" id="ind-left"><span class="indicator-dot"></span>左键</div>
+          <div class="indicator" id="ind-middle"><span class="indicator-dot"></span>中键</div>
+          <div class="indicator" id="ind-right"><span class="indicator-dot"></span>右键</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>滚轮与统计</h3>
+        <div class="metric"><span class="metric-label">滚轮方向</span><span class="metric-value" id="m-scroll-dir">—</span></div>
+        <div class="metric"><span class="metric-label">滚轮增量</span><span class="metric-value" id="m-scroll-delta">0</span></div>
+        <div class="metric"><span class="metric-label">点击计数</span><span class="metric-value" id="m-click-count">0</span></div>
+        <div class="metric"><span class="metric-label">移动事件</span><span class="metric-value" id="m-move-count">0</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 键盘检测 ==================== -->
+<div id="keyboard-page" class="page">
+  <div class="nav-bar">
+    <button class="back-btn" onclick="navigateTo('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      返回
+    </button>
+    <span class="page-title">键盘检测</span>
+    <span class="nav-status"><span class="status-dot" id="kb-status-dot"></span><span id="kb-status-text">监测中</span></span>
+  </div>
+  <div class="sub-content">
+    <p class="section-title">当前按键</p>
+    <div class="panel" style="margin-bottom:14px">
+      <div class="indicator-row" id="kb-active-keys">
+        <span style="color:var(--text-muted);font-size:.8rem">等待按键...</span>
+      </div>
+    </div>
+
+    <div class="panel-grid">
+      <div class="panel">
+        <h3>按键详情</h3>
+        <div class="metric"><span class="metric-label">按键 (key)</span><span class="metric-value" id="kb-last-key">—</span></div>
+        <div class="metric"><span class="metric-label">代码 (code)</span><span class="metric-value" id="kb-last-code">—</span></div>
+        <div class="metric"><span class="metric-label">键码 (keyCode)</span><span class="metric-value" id="kb-last-keycode">—</span></div>
+        <div class="metric"><span class="metric-label">修饰键</span><span class="metric-value" id="kb-modifiers">—</span></div>
+      </div>
+    </div>
+
+    <p class="section-title">108 键全键盘布局</p>
+    <div class="keyboard-wrap" id="kb-layout"></div>
+
+    <div class="key-info-panel">
+      <div class="key-history" id="kb-history">
+        <div class="key-history-empty">按下任意键开始记录...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 手柄检测 ==================== -->
+<div id="gamepad-page" class="page">
+  <div class="nav-bar">
+    <button class="back-btn" onclick="navigateTo('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      返回
+    </button>
+    <span class="page-title">手柄检测</span>
+    <span class="nav-status"><span class="status-dot" id="gp-status-dot"></span><span id="gp-status-text">监测中</span></span>
+  </div>
+  <div class="sub-content">
+    <div class="panel-grid" id="gp-connection-panel">
+      <div class="panel" style="grid-column:1/-1">
+        <div style="text-align:center;padding:16px" id="gp-connection-status">
+          <span style="color:var(--text-muted)">正在检测手柄连接...</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="gp-visual-panel" style="display:none">
+      <p class="section-title">摇杆 & 肩键可视化</p>
+      <div class="panel" style="margin-bottom:16px">
+        <div class="gamepad-visual-wrap" id="gp-visual"></div>
+      </div>
+    </div>
+
+    <div class="panel-grid" id="gp-axes-panel" style="display:none">
+      <div class="panel">
+        <h3>摇杆轴值</h3><div id="gp-axes"></div>
+      </div>
+      <div class="panel">
+        <h3>全部按钮</h3><div class="gamepad-btn-grid" id="gp-buttons"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 屏幕检测 ==================== -->
+<div id="screen-page" class="page">
+  <div class="nav-bar">
+    <button class="back-btn" onclick="exitFullscreenColorTest();navigateTo('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      返回
+    </button>
+    <span class="page-title">屏幕检测</span>
+    <span class="nav-status" id="screen-status">就绪</span>
+  </div>
+  <div class="sub-content">
+    <p class="section-title">屏幕信息</p>
+    <div class="panel-grid">
+      <div class="panel">
+        <div class="metric"><span class="metric-label">物理分辨率</span><span class="metric-value" id="sc-resolution">—</span></div>
+        <div class="metric"><span class="metric-label">可用区域</span><span class="metric-value" id="sc-avail">—</span></div>
+        <div class="metric"><span class="metric-label">设备像素比</span><span class="metric-value" id="sc-dpr">—</span></div>
+        <div class="metric"><span class="metric-label">色彩深度</span><span class="metric-value" id="sc-color-depth">—</span></div>
+        <div class="metric"><span class="metric-label">刷新率</span><span class="metric-value" id="sc-refresh-rate">检测中...</span></div>
+      </div>
+      <div class="panel">
+        <div class="metric"><span class="metric-label">窗口尺寸</span><span class="metric-value" id="sc-window">—</span></div>
+        <div class="metric"><span class="metric-label">屏幕方向</span><span class="metric-value" id="sc-orientation">—</span></div>
+        <div class="metric"><span class="metric-label">触摸支持</span><span class="metric-value" id="sc-touch">—</span></div>
+        <div class="metric"><span class="metric-label">像素比(物理:逻辑)</span><span class="metric-value" id="sc-pixel-ratio-desc">—</span></div>
+      </div>
+    </div>
+
+    <p class="section-title">刷新率对比 — 移动条纹动画</p>
+    <div class="refresh-grid" id="refresh-grid">
+      <div class="refresh-card">
+        <div class="rc-header"><span>30 fps</span></div>
+        <canvas id="canvas-30hz"></canvas>
+      </div>
+      <div class="refresh-card">
+        <div class="rc-header"><span>60 fps</span></div>
+        <canvas id="canvas-60hz"></canvas>
+      </div>
+      <div class="refresh-card">
+        <div class="rc-header"><span id="native-hz-label">本机刷新率</span></div>
+        <canvas id="canvas-native"></canvas>
+      </div>
+    </div>
+
+    <p class="section-title">纯色 / 坏点检测 <span style="font-weight:400;font-size:.73rem;color:var(--text-muted)">（点击进入全屏）</span></p>
+    <div class="color-test-area" id="color-test-area" style="background:#000" onclick="goFullscreenColorTest()">
+      点击进入全屏检测 · 或点击下方色块切换
+    </div>
+    <div class="color-palette" id="color-palette">
+      <div class="color-swatch" style="background:#fff" data-color="#ffffff" onclick="event.stopPropagation();setColorTest('#ffffff')"></div>
+      <div class="color-swatch" style="background:#000" data-color="#000000" onclick="event.stopPropagation();setColorTest('#000000')"></div>
+      <div class="color-swatch" style="background:#f00" data-color="#ff0000" onclick="event.stopPropagation();setColorTest('#ff0000')"></div>
+      <div class="color-swatch" style="background:#0f0" data-color="#00ff00" onclick="event.stopPropagation();setColorTest('#00ff00')"></div>
+      <div class="color-swatch" style="background:#00f" data-color="#0000ff" onclick="event.stopPropagation();setColorTest('#0000ff')"></div>
+      <div class="color-swatch" style="background:#ff0" data-color="#ffff00" onclick="event.stopPropagation();setColorTest('#ffff00')"></div>
+      <div class="color-swatch" style="background:#0ff" data-color="#00ffff" onclick="event.stopPropagation();setColorTest('#00ffff')"></div>
+      <div class="color-swatch" style="background:#f0f" data-color="#ff00ff" onclick="event.stopPropagation();setColorTest('#ff00ff')"></div>
+      <div class="color-swatch" style="background:#888" data-color="#808080" onclick="event.stopPropagation();setColorTest('#808080')"></div>
+    </div>
+
+    <div class="screen-actions">
+      <button class="btn primary" onclick="goFullscreenColorTest()">全屏纯色坏点检测</button>
+      <button class="btn" onclick="startGradientTest()">渐变测试</button>
+    </div>
+  </div>
+
+  <div class="fullscreen-overlay" id="fullscreen-overlay" onclick="cycleFullscreenColor()">
+    <button class="fs-close" onclick="event.stopPropagation();exitFullscreenColorTest()">退出 Esc</button>
+    <div class="fs-hint">点击切换颜色 · Esc 退出</div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+//  页面导航
+// ================================================================
+function navigateTo(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const t=document.getElementById(page+'-page');
+  if(t)t.classList.add('active');
+  stopAllDetectors();
+  if(page==='mouse')startMouseDetector();
+  else if(page==='keyboard')startKeyboardDetector();
+  else if(page==='gamepad')startGamepadDetector();
+  else if(page==='screen'){updateScreenInfo();detectRefreshRate();startRefreshAnims()}
+  exitFullscreenColorTest();
+}
+function stopAllDetectors(){stopMouseDetector();stopKeyboardDetector();stopGamepadDetector();stopRefreshAnims()}
+
+// ================================================================
+//  鼠标检测
+// ================================================================
+let mouseState={pageX:0,pageY:0,clientX:0,clientY:0,left:!1,middle:!1,right:!1,scrollDelta:0,scrollDir:'—',clickCount:0,moveCount:0};
+
+function handleMouseMove(e){
+  mouseState.pageX=e.pageX;mouseState.pageY=e.pageY;
+  mouseState.clientX=e.clientX;mouseState.clientY=e.clientY;
+  mouseState.moveCount++;updateMouseUI();
+  const z=document.getElementById('mouse-track-zone');
+  if(z){const r=z.getBoundingClientRect(),rx=e.clientX-r.left,ry=e.clientY-r.top;
+    if(rx>=0&&ry>=0&&rx<=r.width&&ry<=r.height){
+      document.getElementById('crosshair-h').style.top=ry+'px';
+      document.getElementById('crosshair-v').style.left=rx+'px';
+      document.getElementById('coord-tip').style.left=rx+'px';
+      document.getElementById('coord-tip').style.top=ry+'px';
+      document.getElementById('coord-tip').textContent=`X: ${Math.round(rx)}, Y: ${Math.round(ry)}`;
+      document.querySelector('.track-hint').style.display='none';
+      document.getElementById('mouse-status-dot').className='status-dot active-dot';
+      document.getElementById('mouse-status-text').textContent='活动';
+    }
+  }
+}
+function handleMouseDown(e){
+  if(e.button===0){mouseState.left=!0;mouseState.clickCount++}
+  else if(e.button===1)mouseState.middle=!0;
+  else if(e.button===2)mouseState.right=!0;
+  updateMouseUI();
+  const z=document.getElementById('mouse-track-zone');
+  if(z){const r=z.getBoundingClientRect(),rip=document.createElement('div');
+    rip.className='click-ripple';rip.style.left=(e.clientX-r.left)+'px';rip.style.top=(e.clientY-r.top)+'px';
+    z.appendChild(rip);setTimeout(()=>rip.remove(),600)}
+}
+function handleMouseUp(e){
+  if(e.button===0)mouseState.left=!1;
+  else if(e.button===1)mouseState.middle=!1;
+  else if(e.button===2)mouseState.right=!1;
+  updateMouseUI();
+}
+function handleWheel(e){mouseState.scrollDelta=e.deltaY;mouseState.scrollDir=e.deltaY>0?'↓ 向下':e.deltaY<0?'↑ 向上':'—';updateMouseUI()}
+function updateMouseUI(){
+  const g=id=>document.getElementById(id);
+  if(!g('m-page-x'))return;
+  g('m-page-x').textContent=mouseState.pageX;g('m-page-y').textContent=mouseState.pageY;
+  g('m-client-x').textContent=mouseState.clientX;g('m-client-y').textContent=mouseState.clientY;
+  g('m-scroll-dir').textContent=mouseState.scrollDir;g('m-scroll-delta').textContent=mouseState.scrollDelta;
+  g('m-click-count').textContent=mouseState.clickCount;g('m-move-count').textContent=mouseState.moveCount;
+  ['ind-left','ind-middle','ind-right'].forEach((id,i)=>{const el=g(id);if(!el)return;(i===0?mouseState.left:i===1?mouseState.middle:mouseState.right)?el.classList.add('active'):el.classList.remove('active')})
+}
+function startMouseDetector(){
+  document.addEventListener('mousemove',handleMouseMove);document.addEventListener('mousedown',handleMouseDown);
+  document.addEventListener('mouseup',handleMouseUp);document.addEventListener('wheel',handleWheel,{passive:!0});
+  document.getElementById('mouse-status-dot').className='status-dot idle';document.getElementById('mouse-status-text').textContent='待机';
+}
+function stopMouseDetector(){
+  document.removeEventListener('mousemove',handleMouseMove);document.removeEventListener('mousedown',handleMouseDown);
+  document.removeEventListener('mouseup',handleMouseUp);document.removeEventListener('wheel',handleWheel);
+}
+
+// ================================================================
+//  键盘检测 — 108 键全键盘（三区布局）
+// ================================================================
+const pressedKeyCodes=new Set();
+const keyHistoryList=[];
+const MAX_KH=60;
+
+// 功能键行 (Esc + F1~F12)
+const kbFuncRow=[
+  {l:'Esc',c:'Escape',w:1},{l:'',c:'',w:0.5},
+  {l:'F1',c:'F1',w:1},{l:'F2',c:'F2',w:1},{l:'F3',c:'F3',w:1},{l:'F4',c:'F4',w:1},
+  {l:'',c:'',w:0.5},{l:'F5',c:'F5',w:1},{l:'F6',c:'F6',w:1},{l:'F7',c:'F7',w:1},{l:'F8',c:'F8',w:1},
+  {l:'',c:'',w:0.5},{l:'F9',c:'F9',w:1},{l:'F10',c:'F10',w:1},{l:'F11',c:'F11',w:1},{l:'F12',c:'F12',w:1},
+];
+// 功能键行右侧导航区 (PrtSc ScrLk Pause)
+const kbNavFunc=[
+  {l:'PrtSc',c:'PrintScreen'},{l:'ScrLk',c:'ScrollLock'},{l:'Pause',c:'Pause'},
+];
+// 主键区 5 行
+const kbMain=[
+  [
+    {l:'`',c:'Backquote'},{l:'1',c:'Digit1'},{l:'2',c:'Digit2'},{l:'3',c:'Digit3'},
+    {l:'4',c:'Digit4'},{l:'5',c:'Digit5'},{l:'6',c:'Digit6'},{l:'7',c:'Digit7'},
+    {l:'8',c:'Digit8'},{l:'9',c:'Digit9'},{l:'0',c:'Digit0'},{l:'-',c:'Minus'},
+    {l:'=',c:'Equal'},{l:'Bksp',c:'Backspace',w:2},
+  ],
+  [
+    {l:'Tab',c:'Tab',w:1.5},{l:'Q',c:'KeyQ'},{l:'W',c:'KeyW'},{l:'E',c:'KeyE'},
+    {l:'R',c:'KeyR'},{l:'T',c:'KeyT'},{l:'Y',c:'KeyY'},{l:'U',c:'KeyU'},
+    {l:'I',c:'KeyI'},{l:'O',c:'KeyO'},{l:'P',c:'KeyP'},{l:'[',c:'BracketLeft'},
+    {l:']',c:'BracketRight'},{l:'\\',c:'Backslash',w:1.5},
+  ],
+  [
+    {l:'Caps',c:'CapsLock',w:1.75},{l:'A',c:'KeyA'},{l:'S',c:'KeyS'},{l:'D',c:'KeyD'},
+    {l:'F',c:'KeyF'},{l:'G',c:'KeyG'},{l:'H',c:'KeyH'},{l:'J',c:'KeyJ'},
+    {l:'K',c:'KeyK'},{l:'L',c:'KeyL'},{l:';',c:'Semicolon'},{l:"'",c:'Quote'},
+    {l:'Enter',c:'Enter',w:2.25},
+  ],
+  [
+    {l:'Shift',c:'ShiftLeft',w:2.25},{l:'Z',c:'KeyZ'},{l:'X',c:'KeyX'},{l:'C',c:'KeyC'},
+    {l:'V',c:'KeyV'},{l:'B',c:'KeyB'},{l:'N',c:'KeyN'},{l:'M',c:'KeyM'},
+    {l:',',c:'Comma'},{l:'.',c:'Period'},{l:'/',c:'Slash'},{l:'Shift',c:'ShiftRight',w:2.75},
+  ],
+  [
+    {l:'Ctrl',c:'ControlLeft',w:1.25},{l:'Win',c:'MetaLeft',w:1.25},{l:'Alt',c:'AltLeft',w:1.25},
+    {l:'',c:'Space',w:6.25},
+    {l:'Alt',c:'AltRight',w:1.25},{l:'Win',c:'MetaRight',w:1.25},{l:'Menu',c:'ContextMenu',w:1.25},{l:'Ctrl',c:'ControlRight',w:1.25},
+  ],
+];
+// 导航区 5 行 (与主键区行对齐)
+const kbNav=[
+  [{l:'Ins',c:'Insert'},{l:'Home',c:'Home'},{l:'PgUp',c:'PageUp'}],
+  [{l:'Del',c:'Delete'},{l:'End',c:'End'},{l:'PgDn',c:'PageDown'}],
+  [{l:'',c:''},{l:'',c:''},{l:'',c:''}],
+  [{l:'',c:''},{l:'↑',c:'ArrowUp'},{l:'',c:''}],
+  [{l:'←',c:'ArrowLeft'},{l:'↓',c:'ArrowDown'},{l:'→',c:'ArrowRight'}],
+];
+// 小键盘区 (CSS grid，显式定位)
+const kbNumpad=[
+  {l:'NumLk',c:'NumLock',gr:'1',gc:'1'},
+  {l:'/',c:'NumpadDivide',gr:'1',gc:'2'},
+  {l:'*',c:'NumpadMultiply',gr:'1',gc:'3'},
+  {l:'-',c:'NumpadSubtract',gr:'1',gc:'4'},
+  {l:'7',c:'Numpad7',gr:'2',gc:'1'},
+  {l:'8',c:'Numpad8',gr:'2',gc:'2'},
+  {l:'9',c:'Numpad9',gr:'2',gc:'3'},
+  {l:'+',c:'NumpadAdd',gr:'2/4',gc:'4'},
+  {l:'4',c:'Numpad4',gr:'3',gc:'1'},
+  {l:'5',c:'Numpad5',gr:'3',gc:'2'},
+  {l:'6',c:'Numpad6',gr:'3',gc:'3'},
+  {l:'1',c:'Numpad1',gr:'4',gc:'1'},
+  {l:'2',c:'Numpad2',gr:'4',gc:'2'},
+  {l:'3',c:'Numpad3',gr:'4',gc:'3'},
+  {l:'Enter',c:'NumpadEnter',gr:'4/6',gc:'4'},
+  {l:'0',c:'Numpad0',gr:'5',gc:'1/3'},
+  {l:'.',c:'NumpadDecimal',gr:'5',gc:'3'},
+];
+
+let keyElMap={};
+
+function getWClass(w){
+  if(!w||w===1)return'';
+  if(w>=6.25)return'w625';
+  if(w>=6)return'w6';
+  if(w>=2.75)return'w275';
+  if(w>=2.25)return'w225';
+  if(w>=2)return'w2';
+  if(w>=1.75)return'w175';
+  if(w>=1.5)return'w15';
+  return'';
+}
+
+function buildKeyboardUI(){
+  const container=document.getElementById('kb-layout');
+  keyElMap={};
+  var html='';
+
+  // 功能键行
+  html+='<div class="kb-func-row"><div class="kb-func-main">';
+  kbFuncRow.forEach(function(k){
+    if(!k.c){html+='<div class="key-key spacer" style="min-width:'+((k.w||0.5)*38)+'px"></div>';return}
+    html+='<span class="key-key '+getWClass(k.w)+'" data-code="'+k.c+'">'+k.l+'</span>';
+  });
+  html+='</div><div class="kb-func-nav">';
+  kbNavFunc.forEach(function(k){
+    html+='<span class="key-key" data-code="'+k.c+'">'+k.l+'</span>';
+  });
+  html+='</div></div>';
+
+  // 主体三区
+  html+='<div class="kb-body">';
+
+  // 主键区
+  html+='<div class="kb-main">';
+  kbMain.forEach(function(row){
+    html+='<div class="key-row">';
+    row.forEach(function(k){
+      if(!k.c){html+='<div class="key-key spacer" style="min-width:'+((k.w||0.5)*38)+'px"></div>';return}
+      html+='<span class="key-key '+getWClass(k.w)+'" data-code="'+k.c+'">'+k.l+'</span>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // 导航区
+  html+='<div class="kb-nav">';
+  kbNav.forEach(function(row){
+    html+='<div class="kb-nav-row">';
+    row.forEach(function(k){
+      if(!k.c){html+='<div class="key-key spacer"></div>';return}
+      html+='<span class="key-key" data-code="'+k.c+'">'+k.l+'</span>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // 小键盘区
+  html+='<div class="kb-numpad">';
+  kbNumpad.forEach(function(k){
+    html+='<span class="key-key" data-code="'+k.c+'" style="grid-row:'+k.gr+';grid-column:'+k.gc+'">'+k.l+'</span>';
+  });
+  html+='</div>';
+
+  html+='</div>';
+  container.innerHTML=html;
+  container.querySelectorAll('.key-key[data-code]').forEach(function(el){keyElMap[el.dataset.code]=el});
+}
+
+function handleKeyDown_kb(e){
+  if(e.key==='Escape'&&document.getElementById('fullscreen-overlay').classList.contains('show')){
+    e.preventDefault();e.stopPropagation();exitFullscreenColorTest();return;
+  }
+  e.preventDefault();
+  var code=e.code;
+  if(pressedKeyCodes.has(code))return;
+  pressedKeyCodes.add(code);
+
+  var mods=[];
+  if(e.ctrlKey)mods.push('Ctrl');if(e.altKey)mods.push('Alt');
+  if(e.shiftKey)mods.push('Shift');if(e.metaKey)mods.push('Meta');
+
+  document.getElementById('kb-last-key').textContent=e.key||'(空)';
+  document.getElementById('kb-last-code').textContent=code;
+  document.getElementById('kb-last-keycode').textContent=e.keyCode;
+  document.getElementById('kb-modifiers').textContent=mods.join('+')||'无';
+
+  keyHistoryList.unshift({key:e.key||code,code:code,event:'down',time:Date.now()});
+  if(keyHistoryList.length>MAX_KH)keyHistoryList.pop();
+
+  highlightKeyboardKey(code,true); // 持续高亮
+  updateActiveKeys();
+  updateKeyHistory();
+  document.getElementById('kb-status-dot').className='status-dot active-dot';
+  document.getElementById('kb-status-text').textContent='按键中';
+}
+
+function handleKeyUp_kb(e){
+  if(document.getElementById('fullscreen-overlay').classList.contains('show'))return;
+  e.preventDefault();
+  var code=e.code;
+  pressedKeyCodes.delete(code);
+
+  keyHistoryList.unshift({key:e.key||code,code:code,event:'up',time:Date.now()});
+  if(keyHistoryList.length>MAX_KH)keyHistoryList.pop();
+
+  // 不移除高亮 — 持续高亮直到刷新
+  updateActiveKeys();
+  updateKeyHistory();
+  if(pressedKeyCodes.size===0){
+    document.getElementById('kb-status-dot').className='status-dot idle';
+    document.getElementById('kb-status-text').textContent='待机';
+  }
+}
+
+function highlightKeyboardKey(code,pressed){
+  var el=keyElMap[code];
+  if(!el)return;
+  if(pressed)el.classList.add('pressed');
+  // 不移除 — 持续高亮
+}
+
+function updateActiveKeys(){
+  var c=document.getElementById('kb-active-keys');
+  if(pressedKeyCodes.size===0){c.innerHTML='<span style="color:var(--text-muted);font-size:.8rem">等待按键...</span>';return}
+  c.innerHTML=Array.from(pressedKeyCodes).map(function(k){return'<span class="indicator active"><span class="indicator-dot"></span>'+k+'</span>'}).join('');
+}
+
+function updateKeyHistory(){
+  var c=document.getElementById('kb-history');
+  if(keyHistoryList.length===0){c.innerHTML='<div class="key-history-empty">按下任意键开始记录...</div>';return}
+  c.innerHTML=keyHistoryList.slice(0,30).map(function(item){
+    return'<div class="key-history-item">'+
+      '<span class="kh-key">'+item.key+'</span>'+
+      '<span class="kh-code">'+item.code+'</span>'+
+      '<span class="kh-event '+(item.event==='down'?'down-kh':'up-kh')+'">'+(item.event==='down'?'↓':'↑')+'</span>'+
+    '</div>';
+  }).join('');
+}
+
+let kbStarted=false;
+function startKeyboardDetector(){
+  if(!kbStarted){buildKeyboardUI();kbStarted=true}
+  document.addEventListener('keydown',handleKeyDown_kb,true);
+  document.addEventListener('keyup',handleKeyUp_kb,true);
+  document.getElementById('kb-status-dot').className='status-dot idle';
+  document.getElementById('kb-status-text').textContent='待机';
+}
+function stopKeyboardDetector(){
+  pressedKeyCodes.clear();
+  document.removeEventListener('keydown',handleKeyDown_kb,true);
+  document.removeEventListener('keyup',handleKeyUp_kb,true);
+}
+
+// ================================================================
+//  手柄检测 — 肩键 + 摇杆倾斜线
+// ================================================================
+let gamepadInterval=null;
+let lastGamepadCount=0;
+
+function buildGamepadSVG(){
+  const wrap=document.getElementById('gp-visual');
+  wrap.innerHTML=`
+  <svg viewBox="0 0 560 280" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="jBg" cx="50%" cy="50%"><stop offset="0%" stop-color="#2a2d3a"/><stop offset="100%" stop-color="#161822"/></radialGradient>
+      <filter id="jGlow"><feGaussianBlur stdDeviation="2.5"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+
+    <!-- 肩键：L2(trigger 上) L1(bumper 下) -->
+    <rect id="gp-l2" x="38" y="22" width="130" height="20" rx="5" fill="#1a1d27" stroke="#2a2d3a" stroke-width="1.5" class="shoulder-rect"/>
+    <rect id="gp-l1" x="38" y="48" width="130" height="16" rx="4" fill="#1e2130" stroke="#2a2d3a" stroke-width="1.5" class="shoulder-rect"/>
+    <text x="103" y="36" text-anchor="middle" fill="#4a4f62" font-size="9" font-family="sans-serif">L2 (LT)</text>
+    <text x="103" y="60" text-anchor="middle" fill="#4a4f62" font-size="9" font-family="sans-serif">L1 (LB)</text>
+
+    <!-- 肩键：R2(trigger 上) R1(bumper 下) -->
+    <rect id="gp-r2" x="392" y="22" width="130" height="20" rx="5" fill="#1a1d27" stroke="#2a2d3a" stroke-width="1.5" class="shoulder-rect"/>
+    <rect id="gp-r1" x="392" y="48" width="130" height="16" rx="4" fill="#1e2130" stroke="#2a2d3a" stroke-width="1.5" class="shoulder-rect"/>
+    <text x="457" y="36" text-anchor="middle" fill="#4a4f62" font-size="9" font-family="sans-serif">R2 (RT)</text>
+    <text x="457" y="60" text-anchor="middle" fill="#4a4f62" font-size="9" font-family="sans-serif">R1 (RB)</text>
+
+    <!-- 左摇杆底板 -->
+    <rect x="45" y="82" width="120" height="120" rx="16" fill="url(#jBg)" stroke="#2a2d3a" stroke-width="1.5"/>
+    <!-- 右摇杆底板 -->
+    <rect x="395" y="82" width="120" height="120" rx="16" fill="url(#jBg)" stroke="#2a2d3a" stroke-width="1.5"/>
+
+    <!-- 左摇杆基准圈 -->
+    <circle cx="105" cy="142" r="42" fill="none" stroke="#353849" stroke-width="1" stroke-dasharray="5 4"/>
+    <circle cx="105" cy="142" r="22" fill="none" stroke="#2a2d3a" stroke-width="1"/>
+    <circle cx="105" cy="142" r="4" fill="#4a4f62"/>
+
+    <!-- 右摇杆基准圈 -->
+    <circle cx="455" cy="142" r="42" fill="none" stroke="#353849" stroke-width="1" stroke-dasharray="5 4"/>
+    <circle cx="455" cy="142" r="22" fill="none" stroke="#2a2d3a" stroke-width="1"/>
+    <circle cx="455" cy="142" r="4" fill="#4a4f62"/>
+
+    <!-- 左摇杆倾斜方向线 -->
+    <line id="gp-line-l" x1="105" y1="142" x2="105" y2="142" stroke="#6c8cff" stroke-width="3" filter="url(#jGlow)" class="joystick-line"/>
+    <!-- 右摇杆倾斜方向线 -->
+    <line id="gp-line-r" x1="455" y1="142" x2="455" y2="142" stroke="#a78bfa" stroke-width="3" filter="url(#jGlow)" class="joystick-line"/>
+
+    <!-- 左摇杆圆心 -->
+    <circle id="gp-dot-l" cx="105" cy="142" r="10" fill="#6c8cff" filter="url(#jGlow)"/>
+    <!-- 右摇杆圆心 -->
+    <circle id="gp-dot-r" cx="455" cy="142" r="10" fill="#a78bfa" filter="url(#jGlow)"/>
+
+    <!-- 标签 -->
+    <text x="105" y="218" text-anchor="middle" fill="#6b7084" font-size="11" font-family="sans-serif">左摇杆</text>
+    <text x="455" y="218" text-anchor="middle" fill="#6b7084" font-size="11" font-family="sans-serif">右摇杆</text>
+    <text x="280" y="130" text-anchor="middle" fill="#4a4f62" font-size="10" font-family="sans-serif">D-Pad · 功能键 · 菜单键</text>
+    <text x="280" y="148" text-anchor="middle" fill="#3a3f52" font-size="9" font-family="sans-serif">按钮详情见下方面板</text>
+
+    <!-- 轴值 -->
+    <text id="gp-al" x="105" y="240" text-anchor="middle" fill="#9aa0b0" font-size="11" font-family="monospace">X:0.00 Y:0.00</text>
+    <text id="gp-ar" x="455" y="240" text-anchor="middle" fill="#9aa0b0" font-size="11" font-family="monospace">X:0.00 Y:0.00</text>
+  </svg>`;
+}
+
+function pollGamepad(){
+  const gamepads=navigator.getGamepads?navigator.getGamepads():[];
+  let gp=null;
+  for(let i=0;i<gamepads.length;i++){if(gamepads[i]){gp=gamepads[i];break}}
+
+  const connEl=document.getElementById('gp-connection-status');
+  const axesPanel=document.getElementById('gp-axes-panel');
+  const visualPanel=document.getElementById('gp-visual-panel');
+
+  if(!gp){
+    if(lastGamepadCount!==0){connEl.innerHTML='<span style="color:var(--text-muted)">未检测到手柄 · 请连接后按任意键激活</span>';
+      document.getElementById('gp-status-dot').className='status-dot idle';document.getElementById('gp-status-text').textContent='未连接';lastGamepadCount=0}
+    axesPanel.style.display='none';visualPanel.style.display='none';return;
+  }
+
+  if(lastGamepadCount<=0){
+    connEl.innerHTML=`<span style="color:var(--green)">已连接: ${gp.id}</span>`;
+    document.getElementById('gp-status-dot').className='status-dot active-dot';document.getElementById('gp-status-text').textContent='已连接';
+    lastGamepadCount=1;buildGamepadSVG();axesPanel.style.display='';visualPanel.style.display='';
+  }
+
+  // 轴值
+  const axesC=document.getElementById('gp-axes');
+  const axisNames=['左摇杆 X','左摇杆 Y','右摇杆 X','右摇杆 Y'];
+  axesC.innerHTML=gp.axes.slice(0,4).map((v,i)=>{
+    const pct=((v+1)/2*100).toFixed(1);
+    return `<div class="metric"><span class="metric-label">${axisNames[i]||'轴'+i}</span><span class="metric-value">${v.toFixed(4)}</span><div class="axis-bar"><div class="axis-fill" style="width:${pct}%"></div></div></div>`;
+  }).join('');
+
+  // 按钮
+  const btnNames=['A','B','X','Y','LB','RB','LT','RT','Back','Start','L3','R3','↑','↓','←','→'];
+  document.getElementById('gp-buttons').innerHTML=gp.buttons.slice(0,16).map((btn,i)=>
+    `<div class="gbtn${btn.pressed?' pressed':''}"><span>${btnNames[i]||'B'+i}</span><span class="gbtn-val">${btn.value.toFixed(2)}</span></div>`).join('');
+
+  // 摇杆可视化
+  const maxR=40;
+  const ax0=gp.axes[0]||0,ax1=gp.axes[1]||0,ax2=gp.axes[2]||0,ax3=gp.axes[3]||0;
+  const lx=105+ax0*maxR,ly=142+ax1*maxR,rx=455+ax2*maxR,ry=142+ax3*maxR;
+
+  const lineL=document.getElementById('gp-line-l');if(lineL){lineL.setAttribute('x2',lx);lineL.setAttribute('y2',ly)}
+  const dotL=document.getElementById('gp-dot-l');if(dotL){dotL.setAttribute('cx',lx);dotL.setAttribute('cy',ly)}
+  const lineR=document.getElementById('gp-line-r');if(lineR){lineR.setAttribute('x2',rx);lineR.setAttribute('y2',ry)}
+  const dotR=document.getElementById('gp-dot-r');if(dotR){dotR.setAttribute('cx',rx);dotR.setAttribute('cy',ry)}
+
+  const labelL=document.getElementById('gp-al');if(labelL)labelL.textContent=`X:${ax0.toFixed(2)} Y:${ax1.toFixed(2)}`;
+  const labelR=document.getElementById('gp-ar');if(labelR)labelR.textContent=`X:${ax2.toFixed(2)} Y:${ax3.toFixed(2)}`;
+
+  // 肩键 L1/B4 L2/B6 R1/B5 R2/B7
+  function setShoulder(id,bIdx,color){const el=document.getElementById(id);if(!el)return;const btn=gp.buttons[bIdx];
+    if(btn&&btn.value>0.05){el.setAttribute('fill',color);el.setAttribute('stroke',color);el.setAttribute('stroke-width','2')}
+    else{el.setAttribute('fill','#1a1d27');el.setAttribute('stroke','#2a2d3a');el.setAttribute('stroke-width','1.5')}}
+  setShoulder('gp-l2',6,'#f87171');setShoulder('gp-l1',4,'#f87171');
+  setShoulder('gp-r2',7,'#f87171');setShoulder('gp-r1',5,'#f87171');
+}
+
+function startGamepadDetector(){
+  document.getElementById('gp-status-dot').className='status-dot idle';document.getElementById('gp-status-text').textContent='检测中';
+  document.getElementById('gp-connection-status').innerHTML='<span style="color:var(--text-muted)">正在检测手柄连接...</span>';
+  document.getElementById('gp-axes-panel').style.display='none';document.getElementById('gp-visual-panel').style.display='none';
+  lastGamepadCount=-1;gamepadInterval=setInterval(pollGamepad,50);
+}
+function stopGamepadDetector(){if(gamepadInterval){clearInterval(gamepadInterval);gamepadInterval=null}}
+
+// ================================================================
+//  屏幕检测
+// ================================================================
+function updateScreenInfo(){
+  const dpr=window.devicePixelRatio||1;
+  // 物理分辨率 = 屏幕逻辑尺寸 × 设备像素比(DPR)
+  document.getElementById('sc-resolution').textContent=`${screen.width}×${screen.height}（物理: ${Math.round(screen.width*dpr)}×${Math.round(screen.height*dpr)}）`;
+  // 可用区域 = 逻辑像素（不减DPR，这是可用的CSS像素区域）
+  document.getElementById('sc-avail').textContent=`${screen.availWidth}×${screen.availHeight}`;
+  document.getElementById('sc-dpr').textContent=dpr.toFixed(1);
+  document.getElementById('sc-color-depth').textContent=screen.colorDepth+' bit';
+  document.getElementById('sc-window').textContent=`${window.innerWidth}×${window.innerHeight}`;
+  document.getElementById('sc-orientation').textContent=screen.orientation?screen.orientation.type:'N/A';
+  const hasTouch='ontouchstart' in window||navigator.maxTouchPoints>0;
+  document.getElementById('sc-touch').textContent=hasTouch?'支持 (点数: '+(navigator.maxTouchPoints||'?')+')':'不支持';
+  document.getElementById('sc-touch').style.color=hasTouch?'var(--green)':'var(--text-muted)';
+  document.getElementById('sc-pixel-ratio-desc').textContent=`${Math.round(screen.width*dpr)}:${screen.width} = ${dpr.toFixed(1)}:1`;
+}
+
+// 刷新率检测 — 多帧采样
+let detectedHz=60;
+function detectRefreshRate(){
+  return new Promise(resolve=>{
+    const samples=[];let lastTime=performance.now();
+    function sample(t){
+      const dt=t-lastTime;lastTime=t;
+      if(dt>0&&dt<200)samples.push(1000/dt);
+      if(samples.length>=120){
+        // 取中位附近样本，排除极端值
+        const sorted=[...samples].sort((a,b)=>a-b);
+        const trimmed=sorted.slice(10,-10); // 去掉头尾10个样本
+        const avg=trimmed.reduce((a,b)=>a+b,0)/trimmed.length;
+        // 圆整到常见刷新率
+        const commonHz=[24,30,48,50,60,72,75,90,100,120,144,165,180,200,240,300,360];
+        let hz=60;
+        for(const c of commonHz){if(Math.abs(avg-c)<Math.abs(avg-hz))hz=c}
+        detectedHz=hz;
+        document.getElementById('sc-refresh-rate').textContent=hz+' Hz';
+        document.getElementById('sc-refresh-rate').style.color='var(--green)';
+        document.getElementById('native-hz-label').textContent=hz+' fps (本机)';
+        resolve(hz);return;
+      }
+      requestAnimationFrame(sample);
+    }
+    requestAnimationFrame(sample);
+  });
+}
+
+// ================================================================
+//  刷新率对比动画 — testufo 风格
+//  垂直条纹背景 + 移动物体，通过不同帧率展示流畅度差异
+// ================================================================
+let rafId=null;
+
+function initCanvas(canvasId){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas)return null;
+  const ctx=canvas.getContext('2d');
+  return{
+    canvas,ctx,x:0,
+    resize(){
+      const rect=canvas.getBoundingClientRect();
+      const w=rect.width,h=rect.height;
+      const dpr=window.devicePixelRatio||1;
+      if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){
+        canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+      }
+      return{w,h};
+    }
+  };
+}
+
+function drawTestUFOStyleFrame(ctx,w,h,x){
+  // 暗色背景
+  ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,w,h);
+
+  // 垂直条纹背景 — testufo 标志性的栅栏效果
+  var stripeW=8,gap=6,stripeStep=stripeW+gap;
+  ctx.fillStyle='rgba(255,255,255,.06)';
+  for(var sx=-((x%stripeStep)|0);sx<w+stripeStep;sx+=stripeStep){
+    ctx.fillRect(sx,0,stripeW,h);
+  }
+
+  // 中心参考线
+  ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);ctx.stroke();
+
+  // 移动的 UFO —— 由多层组成
+  var cx=x%w,cy=h/2;
+
+  // 主体（梭形/碟形）
+  ctx.save();
+  ctx.translate(cx,cy);
+  ctx.beginPath();
+  ctx.ellipse(0,0,22,10,0,0,Math.PI*2);
+  var bodyGrad=ctx.createLinearGradient(0,-10,0,10);
+  bodyGrad.addColorStop(0,'#6c8cff');bodyGrad.addColorStop(.5,'#3b5fd9');bodyGrad.addColorStop(1,'#1a3a8a');
+  ctx.fillStyle=bodyGrad;ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=1.5;ctx.stroke();
+
+  // 穹顶
+  ctx.beginPath();ctx.ellipse(0,-2,13,8,0,Math.PI,0);
+  var domeGrad=ctx.createLinearGradient(0,-10,0,0);
+  domeGrad.addColorStop(0,'rgba(255,255,255,.5)');domeGrad.addColorStop(1,'rgba(108,140,255,.6)');
+  ctx.fillStyle=domeGrad;ctx.fill();
+
+  // 亮点
+  ctx.beginPath();ctx.arc(-5,-5,3,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,255,255,.7)';ctx.fill();
+
+  ctx.restore();
+
+  // 速度刻度
+  ctx.fillStyle='rgba(255,255,255,.08)';ctx.font='9px monospace';ctx.textAlign='center';
+  for(var i=0;i<w;i+=stripeStep*4){
+    ctx.fillRect(i,h-8,1,8);
+  }
+}
+
+function startRefreshAnims(){
+  stopRefreshAnims();
+  var a30=initCanvas('canvas-30hz'),a60=initCanvas('canvas-60hz'),aN=initCanvas('canvas-native');
+  if(!a30||!a60||!aN)return;
+
+  var speed=180; // 像素/秒 — 三个动画速度相同
+  var lastTime=performance.now();
+  var lastUpdate30=lastTime,lastUpdate60=lastTime;
+  var interval30=1000/30,interval60=1000/60;
+
+  function drawObj(obj){
+    var dims=obj.resize();
+    var w=dims.w,h=dims.h;
+    if(!w||!h)return;
+    drawTestUFOStyleFrame(obj.ctx,w,h,obj.x);
+  }
+
+  function loop(now){
+    var dt=now-lastTime;
+    lastTime=now;
+
+    // 30fps: 只在间隔到达时更新位置（产生跳跃感）
+    if(now-lastUpdate30>=interval30){
+      var updateDt=now-lastUpdate30;
+      a30.x+=speed*(updateDt/1000);
+      var w30=a30.resize().w;
+      if(a30.x>w30+60)a30.x=-60;
+      lastUpdate30=now;
+    }
+
+    // 60fps: 每 ~16.7ms 更新位置
+    if(now-lastUpdate60>=interval60){
+      var updateDt6=now-lastUpdate60;
+      a60.x+=speed*(updateDt6/1000);
+      var w60=a60.resize().w;
+      if(a60.x>w60+60)a60.x=-60;
+      lastUpdate60=now;
+    }
+
+    // 本机: 每帧更新位置（最顺滑）
+    aN.x+=speed*(dt/1000);
+    var wN=aN.resize().w;
+    if(aN.x>wN+60)aN.x=-60;
+
+    // 三个 canvas 每帧都绘制（让用户看到 30fps 的跳跃效果）
+    drawObj(a30);drawObj(a60);drawObj(aN);
+
+    rafId=requestAnimationFrame(loop);
+  }
+  rafId=requestAnimationFrame(loop);
+}
+
+function stopRefreshAnims(){
+  if(rafId){cancelAnimationFrame(rafId);rafId=null}
+}
+
+// ================================================================
+//  全屏颜色检测
+// ================================================================
+const colorSequence=['#ffffff','#000000','#ff0000','#00ff00','#0000ff','#ffff00','#00ffff','#ff00ff','#808080'];
+
+function goFullscreenColorTest(){
+  const el=document.documentElement;
+  if(el.requestFullscreen)el.requestFullscreen();else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+  document.body.classList.add('no-scroll');
+  const overlay=document.getElementById('fullscreen-overlay');
+  overlay.classList.add('show');
+  const area=document.getElementById('color-test-area');
+  const bg=area?area.style.backgroundColor:'#000000';
+  overlay.style.backgroundColor=bg;
+  window._fsIdx=colorSequence.findIndex(c=>c.toLowerCase()===rgbToHex(bg).toLowerCase());
+  if(window._fsIdx<0)window._fsIdx=0;
+}
+
+function cycleFullscreenColor(){
+  const overlay=document.getElementById('fullscreen-overlay');
+  if(!overlay.classList.contains('show'))return;
+  window._fsIdx=((window._fsIdx||0)+1)%colorSequence.length;
+  overlay.style.backgroundColor=colorSequence[window._fsIdx];
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.toggle('active',s.dataset.color.toLowerCase()===colorSequence[window._fsIdx].toLowerCase()));
+}
+
+function exitFullscreenColorTest(){
+  document.getElementById('fullscreen-overlay').classList.remove('show');
+  document.body.classList.remove('no-scroll');
+}
+
+function setColorTest(color){
+  document.getElementById('color-test-area').style.backgroundColor=color;
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.toggle('active',s.dataset.color.toLowerCase()===color.toLowerCase()));
+  const overlay=document.getElementById('fullscreen-overlay');
+  if(overlay.classList.contains('show')){overlay.style.backgroundColor=color;
+    window._fsIdx=colorSequence.findIndex(c=>c.toLowerCase()===color.toLowerCase());if(window._fsIdx<0)window._fsIdx=0}
+}
+
+function startGradientTest(){
+  const area=document.getElementById('color-test-area');
+  area.style.background='linear-gradient(135deg,#f00,#f80,#ff0,#0f0,#0ff,#00f,#80f,#f0f)';
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));
+}
+
+function rgbToHex(rgb){
+  if(!rgb||rgb==='transparent')return'#000000';
+  if(rgb.startsWith('#'))return rgb;
+  const m=rgb.match(/[\d.]+/g);if(!m||m.length<3)return'#000000';
+  return'#'+m.slice(0,3).map(x=>parseInt(x).toString(16).padStart(2,'0')).join('');
+}
+
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)exitFullscreenColorTest()});
+document.addEventListener('webkitfullscreenchange',()=>{if(!document.webkitFullscreenElement)exitFullscreenColorTest()});
+
+window.addEventListener('resize',()=>{
+  if(document.getElementById('screen-page').classList.contains('active'))updateScreenInfo();
+});
+
+// ================================================================
+//  初始化
+// ================================================================
+function init(){
+  startMouseDetector();
+  updateScreenInfo();
+  detectRefreshRate();
+}
+init();
+</script>
+</body>
+</html>
