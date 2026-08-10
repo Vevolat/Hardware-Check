@@ -1,0 +1,60 @@
+/* ================================================================
+   screen-detector.css — 屏幕检测页面样式
+   依赖：main.css（CSS 变量 / .btn / .panel）
+   ================================================================ */
+
+.color-test-area{
+  width:100%;height:260px;border-radius:var(--radius);border:1px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;color:rgba(128,128,128,.5);font-weight:600;
+  transition:background-color .3s ease;margin-bottom:14px;
+}
+.color-palette{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.color-swatch{
+  width:44px;height:44px;border-radius:var(--radius-xs);border:2px solid transparent;
+  cursor:pointer;transition:all var(--transition);
+}
+.color-swatch:hover{border-color:var(--text);transform:scale(1.12)}
+.color-swatch.active{border-color:var(--accent);box-shadow:0 0 14px rgba(59,130,246,.3)}
+
+.screen-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+
+/* 全屏颜色测试遮罩 */
+.fullscreen-overlay{
+  display:none;position:fixed;inset:0;z-index:9999;cursor:pointer;
+  transition:background-color .3s ease;
+}
+.fullscreen-overlay.show{display:block}
+.fullscreen-overlay .fs-hint{
+  position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+  color:rgba(255,255,255,.45);font-size:.85rem;text-align:center;pointer-events:none;
+}
+.fullscreen-overlay .fs-close{
+  position:absolute;top:20px;right:20px;background:rgba(255,255,255,.1);
+  border:none;color:rgba(255,255,255,.6);padding:8px 16px;
+  border-radius:var(--radius-xs);cursor:pointer;font-size:.82rem;transition:all var(--transition);font-family:inherit;
+}
+.fullscreen-overlay .fs-close:hover{background:rgba(255,255,255,.2);color:rgba(255,255,255,.9)}
+
+/* 刷新率对比动画 — testufo 风格 */
+.refresh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:20px}
+.refresh-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);
+}
+.refresh-card .rc-header{
+  padding:11px 16px;font-size:.8rem;font-weight:600;color:var(--text-secondary);
+  border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;
+}
+.refresh-card .rc-badge{font-size:.68rem;padding:2px 8px;border-radius:99px;font-weight:500}
+.rc-badge.bad{background:var(--red-subtle);color:var(--red)}
+.rc-badge.ok{background:var(--yellow-subtle);color:var(--yellow)}
+.rc-badge.good{background:var(--green-subtle);color:var(--green)}
+.refresh-card canvas{display:block;width:100%;height:180px;background:#1a1a2e}
+
+/* 响应式 */
+@media(max-width:600px){
+  .color-test-area{height:180px}
+  .refresh-grid{grid-template-columns:1fr}
+  .screen-actions{flex-direction:column}
+}

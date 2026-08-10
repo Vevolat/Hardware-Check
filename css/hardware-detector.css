@@ -1,0 +1,45 @@
+/* ================================================================
+   hardware-detector.css — 硬件配置页面专属样式
+   主题色：红 (var(--red))
+   依赖：main.css（变量与通用 .panel / .metric / .indicator-row 等）
+   ================================================================ */
+
+/* GPU 文本框 */
+.hw-gpu{
+  background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-xs);
+  padding:14px 16px;font-size:.84rem;color:var(--text);line-height:1.5;word-break:break-word;
+}
+
+/* User-Agent 文本 */
+.hw-ua{
+  font-size:.74rem;font-weight:500;color:var(--text-secondary);
+  word-break:break-all;line-height:1.5;text-align:right;
+}
+
+/* 多显卡列表 */
+.hw-gpu-list{display:flex;flex-direction:column;gap:12px}
+.hw-gpu-card{
+  background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-xs);
+  padding:14px 16px;
+}
+.hw-gpu-name{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:6px;word-break:break-word}
+.hw-gpu-meta{font-size:.76rem;color:var(--text-secondary);line-height:1.5;word-break:break-word}
+
+/* 信息提示框（说明浏览器限制） */
+.hw-note{
+  font-size:.72rem;color:var(--text-muted);line-height:1.5;margin-top:12px;
+  padding:10px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-xs);
+}
+.hw-note code{
+  background:var(--bg-card);padding:1px 5px;border-radius:4px;font-size:.92em;color:var(--text-secondary);
+}
+
+/* 能力支持 chips */
+.hw-cap-chip{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:999px;
+  font-size:.78rem;font-weight:500;border:1px solid var(--border);
+  background:var(--bg-input);color:var(--text-secondary);transition:all var(--transition);
+}
+.hw-cap-chip.supported{border-color:var(--green);color:var(--green);background:var(--green-subtle)}
+.hw-cap-chip.unsupported{border-color:var(--border);color:var(--text-muted)}
+.hw-cap-chip .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
