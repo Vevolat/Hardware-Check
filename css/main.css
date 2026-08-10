@@ -1,0 +1,238 @@
+/* ================================================================
+   main.css — 全局样式
+   依赖：无（被所有页面引用）
+   包含：CSS 变量（主题）、基础重置、页面容器、导航栏、
+         主页卡片网格、子页面通用面板/指示灯/按钮、页脚、响应式
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   CSS 变量 — 白色简约（默认）/ 暗色（夜间自动切换）
+   ---------------------------------------------------------------- */
+:root {
+  --bg:            #f5f5f7;
+  --bg-elevated:   #ffffff;
+  --bg-card:       #ffffff;
+  --bg-hover:      #f0f0f3;
+  --bg-input:      #f8f9fa;
+  --border:        #e5e7eb;
+  --border-light:  #e5e7eb;
+  --text:          #1f2937;
+  --text-secondary:#6b7280;
+  --text-muted:    #9ca3af;
+  --accent:        #3b82f6;
+  --accent-hover:  #2563eb;
+  --accent-subtle: rgba(59,130,246,0.08);
+  --green:         #10b981;
+  --green-subtle:  rgba(16,185,129,0.08);
+  --red:           #ef4444;
+  --red-subtle:    rgba(239,68,68,0.08);
+  --yellow:        #f59e0b;
+  --yellow-subtle: rgba(245,158,11,0.08);
+  --orange:        #f97316;
+  --orange-subtle: rgba(249,115,22,0.08);
+  --purple:        #8b5cf6;
+  --purple-subtle: rgba(139,92,246,0.08);
+  --cyan:          #06b6d4;
+  --cyan-subtle:   rgba(6,182,212,0.08);
+  --shadow-sm:     0 1px 3px rgba(0,0,0,.06);
+  --shadow:        0 4px 24px rgba(0,0,0,.06);
+  --shadow-lg:     0 12px 40px rgba(0,0,0,.08);
+  --radius:        16px;
+  --radius-sm:     10px;
+  --radius-xs:     6px;
+  --transition:    0.2s cubic-bezier(0.4,0,0.2,1);
+  --max-w:         1120px;
+}
+
+/* 夜间自动切换 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:            #0f1117;
+    --bg-elevated:   #1a1d27;
+    --bg-card:       #1e2130;
+    --bg-hover:      #252a38;
+    --bg-input:      #161822;
+    --border:        #2a2d3a;
+    --border-light:  #353849;
+    --text:          #e8eaed;
+    --text-secondary:#9aa0b0;
+    --text-muted:    #6b7084;
+    --accent:        #6c8cff;
+    --accent-hover:  #8ba3ff;
+    --accent-subtle: rgba(108,140,255,0.12);
+    --green:         #34d399;
+    --green-subtle:  rgba(52,211,153,0.12);
+    --red:           #f87171;
+    --red-subtle:    rgba(248,113,113,0.12);
+    --yellow:        #fbbf24;
+    --yellow-subtle: rgba(251,191,36,0.12);
+    --orange:        #fb923c;
+    --orange-subtle: rgba(251,146,60,0.12);
+    --purple:        #a78bfa;
+    --purple-subtle: rgba(167,139,250,0.12);
+    --cyan:          #22d3ee;
+    --cyan-subtle:   rgba(34,211,238,0.12);
+    --shadow-sm:     0 1px 3px rgba(0,0,0,.3);
+    --shadow:        0 4px 24px rgba(0,0,0,.4);
+    --shadow-lg:     0 12px 40px rgba(0,0,0,.5);
+  }
+}
+
+/* ----------------------------------------------------------------
+   基础重置
+   ---------------------------------------------------------------- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;
+}
+body.no-scroll{overflow:hidden}
+
+/* ----------------------------------------------------------------
+   页面容器
+   ---------------------------------------------------------------- */
+.page{display:none;min-height:100vh;animation:fadeSlideIn .35s ease}
+.page.active{display:flex;flex-direction:column}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes keyGlow{
+  0%,100%{box-shadow:0 0 6px var(--accent-subtle),0 0 16px rgba(59,130,246,.15)}
+  50%{box-shadow:0 0 12px var(--accent),0 0 28px rgba(59,130,246,.3)}
+}
+
+/* ----------------------------------------------------------------
+   导航栏
+   ---------------------------------------------------------------- */
+.nav-bar{
+  display:flex;align-items:center;gap:14px;padding:14px 24px;
+  border-bottom:1px solid var(--border);background:var(--bg-elevated);
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);
+}
+.nav-bar .back-btn{
+  display:flex;align-items:center;gap:6px;
+  background:var(--bg-input);color:var(--text-secondary);
+  border:1px solid var(--border);padding:7px 14px;border-radius:var(--radius-xs);
+  cursor:pointer;font-size:.84rem;transition:all var(--transition);font-family:inherit;
+}
+.nav-bar .back-btn:hover{background:var(--bg-hover);color:var(--text);border-color:var(--text-muted)}
+.nav-bar .back-btn svg{width:16px;height:16px}
+.nav-bar .page-title{font-size:1.05rem;font-weight:600;color:var(--text)}
+.nav-bar .nav-status{margin-left:auto;font-size:.78rem;color:var(--text-muted);display:flex;align-items:center;gap:8px}
+.nav-bar .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.nav-bar .status-dot.idle{background:var(--text-muted)}
+.nav-bar .status-dot.active-dot{background:var(--green);animation:pulse 1.5s infinite}
+
+/* ----------------------------------------------------------------
+   主页 — 极简卡片网格
+   ---------------------------------------------------------------- */
+.home-container{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:48px 24px;
+}
+.card-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:20px;width:100%;max-width:var(--max-w);
+}
+.detection-card{
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:36px 28px 32px;cursor:pointer;
+  transition:all var(--transition);text-align:center;
+  color:var(--text);font-family:inherit;
+  box-shadow:var(--shadow-sm);
+}
+.detection-card:hover{
+  background:var(--bg-hover);border-color:var(--text-muted);
+  transform:translateY(-4px);box-shadow:var(--shadow-lg);
+}
+.detection-card .card-icon-wrap{
+  width:64px;height:64px;border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform var(--transition);
+}
+.detection-card:hover .card-icon-wrap{transform:scale(1.06)}
+.card-icon-wrap.mouse{background:var(--accent-subtle);color:var(--accent)}
+.card-icon-wrap.keyboard{background:var(--green-subtle);color:var(--green)}
+.card-icon-wrap.gamepad{background:var(--purple-subtle);color:var(--purple)}
+.card-icon-wrap.screen{background:var(--orange-subtle);color:var(--orange)}
+.card-icon-wrap.headphone{background:var(--cyan-subtle);color:var(--cyan)}
+.card-icon-wrap.network{background:var(--yellow-subtle);color:var(--yellow)}
+.card-icon-wrap.hardware{background:var(--red-subtle);color:var(--red)}
+.detection-card .card-icon-wrap svg{width:28px;height:28px}
+.detection-card .card-title{font-size:1.1rem;font-weight:650;letter-spacing:-.3px}
+.detection-card .card-desc{font-size:.82rem;color:var(--text-muted);line-height:1.5;max-width:200px}
+
+/* ----------------------------------------------------------------
+   子页面通用
+   ---------------------------------------------------------------- */
+.sub-content{flex:1;padding:32px 24px;max-width:var(--max-w);margin:0 auto;width:100%}
+.section-title{
+  font-size:.78rem;font-weight:650;text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--text-muted);margin-bottom:14px;
+}
+
+/* 面板 */
+.panel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:20px}
+.panel{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px 22px;
+  box-shadow:var(--shadow-sm);
+}
+.panel h3{font-size:.84rem;font-weight:600;color:var(--text-secondary);margin-bottom:12px}
+.panel .metric{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.panel .metric:last-child{border-bottom:none}
+.panel .metric-label{font-size:.8rem;color:var(--text-muted)}
+.panel .metric-value{font-size:.88rem;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text)}
+
+/* 指示灯 */
+.indicator-row{display:flex;gap:8px;flex-wrap:wrap}
+.indicator{
+  display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:var(--radius-xs);
+  background:var(--bg-input);border:1px solid var(--border);
+  font-size:.8rem;color:var(--text-muted);transition:all var(--transition);min-width:90px;
+}
+.indicator.active{border-color:var(--green);color:var(--green);background:var(--green-subtle)}
+.indicator .indicator-dot{width:8px;height:8px;border-radius:50%;background:var(--text-muted);transition:background var(--transition)}
+.indicator.active .indicator-dot{background:var(--green)}
+
+/* 通用按钮 */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:9px 18px;
+  border-radius:var(--radius-xs);font-size:.84rem;font-weight:500;cursor:pointer;
+  border:1px solid var(--border);background:var(--bg-card);color:var(--text-secondary);
+  transition:all var(--transition);font-family:inherit;box-shadow:var(--shadow-sm);
+}
+.btn:hover{background:var(--bg-hover);color:var(--text);border-color:var(--text-muted)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+
+/* 主页页脚 */
+.home-footer{
+  padding:24px 24px 32px;text-align:center;
+}
+.github-link{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:40px;height:40px;border-radius:50%;
+  color:var(--text-muted);transition:all var(--transition);
+  text-decoration:none;
+}
+.github-link:hover{color:var(--text);transform:scale(1.1)}
+.github-link svg{width:26px;height:26px}
+
+/* ----------------------------------------------------------------
+   响应式（通用部分）
+   ---------------------------------------------------------------- */
+@media(max-width:900px){
+  .card-grid{grid-template-columns:repeat(2,1fr);gap:14px}
+  .detection-card{padding:28px 20px 24px}
+}
+@media(max-width:600px){
+  .card-grid{grid-template-columns:1fr;max-width:360px}
+  .home-container{padding:32px 16px}
+  .nav-bar{padding:10px 14px}
+  .sub-content{padding:20px 14px}
+  .panel-grid{grid-template-columns:1fr}
+  .indicator-row{flex-direction:column}
+  .btn{justify-content:center}
+}

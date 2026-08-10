@@ -1,0 +1,122 @@
+/* ================================================================
+   headphone-detector.css — 耳机检测页面样式
+   依赖：main.css（CSS 变量 / .panel / .metric / .btn / .indicator）
+   ================================================================ */
+
+/* 大号连接状态展示区 */
+.hp-status-hero{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:36px 28px;text-align:center;
+  box-shadow:var(--shadow-sm);margin-bottom:20px;
+  transition:all var(--transition);
+}
+.hp-status-hero.connected{border-color:var(--green);box-shadow:0 0 24px var(--green-subtle)}
+.hp-status-hero.disconnected{border-color:var(--text-muted)}
+.hp-status-hero .hp-hero-icon{
+  width:72px;height:72px;border-radius:50%;margin:0 auto 16px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg-input);color:var(--text-muted);
+  transition:all var(--transition);
+}
+.hp-status-hero.connected .hp-hero-icon{
+  background:var(--green-subtle);color:var(--green);
+  animation:hpPulse 2s ease-in-out infinite;
+}
+.hp-status-hero .hp-hero-icon svg{width:36px;height:36px}
+@keyframes hpPulse{
+  0%,100%{box-shadow:0 0 0 0 var(--green-subtle)}
+  50%{box-shadow:0 0 0 12px transparent}
+}
+.hp-status-hero .hp-hero-label{
+  font-size:1.25rem;font-weight:650;letter-spacing:-.3px;color:var(--text);
+}
+.hp-status-hero.connected .hp-hero-label{color:var(--green)}
+.hp-status-hero.disconnected .hp-hero-label{color:var(--text-muted)}
+.hp-status-hero .hp-hero-detail{
+  font-size:.78rem;color:var(--text-muted);margin-top:6px;
+  font-family:"SF Mono","Consolas",monospace;
+}
+
+/* 设备列表 */
+.hp-device-list{display:flex;flex-direction:column;gap:8px}
+.hp-device-item{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:var(--bg-input);border:1px solid var(--border);
+  border-radius:var(--radius-xs);transition:all var(--transition);
+}
+.hp-device-item.matched{
+  border-color:var(--green);background:var(--green-subtle);
+}
+.hp-device-item .hp-dev-icon{
+  width:28px;height:28px;border-radius:var(--radius-xs);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:var(--bg-card);color:var(--text-muted);
+}
+.hp-device-item.matched .hp-dev-icon{color:var(--green)}
+.hp-device-item .hp-dev-icon svg{width:16px;height:16px}
+.hp-device-item .hp-dev-info{flex:1;min-width:0}
+.hp-device-item .hp-dev-label{
+  font-size:.82rem;font-weight:600;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.hp-device-item .hp-dev-id{
+  font-size:.7rem;color:var(--text-muted);font-family:"SF Mono","Consolas",monospace;
+}
+.hp-device-item .hp-dev-tag{
+  font-size:.64rem;padding:2px 8px;border-radius:99px;font-weight:500;flex-shrink:0;
+  background:var(--border);color:var(--text-muted);
+}
+.hp-device-item.matched .hp-dev-tag{background:var(--green-subtle);color:var(--green)}
+.hp-device-empty{
+  color:var(--text-muted);font-size:.82rem;padding:12px 0;text-align:center;
+}
+
+/* 事件日志 */
+.hp-event-log{
+  max-height:240px;overflow-y:auto;
+}
+.hp-event-item{
+  display:flex;align-items:center;gap:12px;padding:8px 0;
+  border-bottom:1px solid var(--border);font-size:.76rem;
+}
+.hp-event-item:last-child{border-bottom:none}
+.hp-event-item .hp-ev-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.hp-event-item.connect .hp-ev-dot{background:var(--green)}
+.hp-event-item.disconnect .hp-ev-dot{background:var(--red)}
+.hp-event-item .hp-ev-type{
+  font-weight:600;min-width:70px;
+}
+.hp-event-item.connect .hp-ev-type{color:var(--green)}
+.hp-event-item.disconnect .hp-ev-type{color:var(--red)}
+.hp-event-item .hp-ev-device{
+  flex:1;color:var(--text-secondary);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.hp-event-item .hp-ev-time{
+  color:var(--text-muted);font-family:"SF Mono","Consolas",monospace;font-size:.7rem;flex-shrink:0;
+}
+.hp-event-empty{
+  color:var(--text-muted);font-size:.8rem;padding:8px 0;
+}
+
+/* 权限提示 */
+.hp-permission-hint{
+  display:flex;align-items:flex-start;gap:10px;padding:12px 16px;
+  background:var(--yellow-subtle);border:1px solid var(--yellow);
+  border-radius:var(--radius-xs);margin-bottom:16px;
+  font-size:.78rem;color:var(--text-secondary);line-height:1.5;
+}
+.hp-permission-hint svg{width:18px;height:18px;color:var(--yellow);flex-shrink:0;margin-top:1px}
+.hp-permission-hint.hidden{display:none}
+
+/* 操作按钮组 */
+.hp-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+
+/* 响应式 */
+@media(max-width:600px){
+  .hp-status-hero{padding:28px 20px}
+  .hp-actions{flex-direction:column}
+  .hp-actions .btn{justify-content:center}
+}

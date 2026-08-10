@@ -1,0 +1,32 @@
+/* ================================================================
+   gamepad-detector.css — 手柄检测页面样式
+   依赖：main.css（CSS 变量 / .panel / .metric）
+   ================================================================ */
+
+.gamepad-visual-wrap{
+  position:relative;width:100%;max-width:560px;margin:0 auto;padding:10px 0;
+}
+.gamepad-visual-wrap svg{width:100%;height:auto;display:block}
+.joystick-line{stroke-linecap:round;transition:all .03s linear}
+
+.shoulder-rect{
+  rx:6;transition:all .08s ease;
+}
+.gamepad-btn-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:420px;
+}
+.gbtn{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:9px 6px;background:var(--bg-input);border:1px solid var(--border);
+  border-radius:var(--radius-xs);font-size:.7rem;color:var(--text-muted);
+  transition:all var(--transition);
+}
+.gbtn.pressed{border-color:var(--accent);color:var(--accent);background:var(--accent-subtle)}
+.gbtn .gbtn-val{font-size:.66rem;font-family:monospace;color:var(--text-secondary)}
+.axis-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:4px}
+.axis-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .05s linear}
+
+/* 响应式 */
+@media(max-width:600px){
+  .gamepad-btn-grid{grid-template-columns:repeat(3,1fr)}
+}

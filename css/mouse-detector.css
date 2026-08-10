@@ -1,0 +1,33 @@
+/* ================================================================
+   mouse-detector.css — 鼠标检测页面样式
+   依赖：main.css（CSS 变量 / .panel / .indicator）
+   ================================================================ */
+
+.mouse-track-zone{
+  position:relative;width:100%;height:300px;background:var(--bg-input);
+  border:2px dashed var(--border);border-radius:var(--radius);overflow:hidden;
+  margin-bottom:20px;cursor:crosshair;
+}
+.mouse-track-zone .crosshair-h{position:absolute;left:0;right:0;height:1px;background:rgba(59,130,246,.4);pointer-events:none}
+.mouse-track-zone .crosshair-v{position:absolute;top:0;bottom:0;width:1px;background:rgba(59,130,246,.4);pointer-events:none}
+.mouse-track-zone .coord-tip{
+  position:absolute;pointer-events:none;background:var(--bg-card);
+  border:1px solid var(--border);border-radius:var(--radius-xs);
+  padding:4px 10px;font-size:.74rem;color:var(--text-secondary);
+  transform:translate(12px,12px);white-space:nowrap;
+}
+.mouse-track-zone .track-hint{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  color:var(--text-muted);font-size:.85rem;pointer-events:none;
+}
+.click-ripple{
+  position:absolute;pointer-events:none;width:20px;height:20px;border-radius:50%;
+  border:2px solid var(--accent);transform:translate(-50%,-50%);
+  animation:rippleOut .6s ease-out forwards;
+}
+@keyframes rippleOut{to{width:80px;height:80px;opacity:0}}
+
+/* 响应式 */
+@media(max-width:600px){
+  .mouse-track-zone{height:200px}
+}

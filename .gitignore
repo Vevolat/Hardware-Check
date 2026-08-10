@@ -1,0 +1,12 @@
+# WorkBuddy 项目数据（非源码，勿提交）
+.workbuddy/
+
+# 系统/编辑器垃圾文件
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# 依赖（本项目为纯前端，无构建依赖）
+node_modules/

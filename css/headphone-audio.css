@@ -1,0 +1,141 @@
+/* ================================================================
+   headphone-audio.css — 耳机音乐播放 / 实时波形 / 音量控制
+   依赖：main.css（CSS 变量与通用面板/按钮）
+   主题：cyan（与首页耳机卡片、状态指示灯一致）
+   ================================================================ */
+
+/* 面板容器 */
+.hp-audio-panel{margin-bottom:20px}
+
+/* 播放器行 */
+.hp-player{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.hp-play-btn{
+  flex:0 0 auto;width:54px;height:54px;border-radius:50%;
+  border:1px solid var(--cyan);background:var(--cyan);color:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:all var(--transition);box-shadow:0 4px 14px var(--cyan-subtle);
+}
+.hp-play-btn:hover{transform:scale(1.06);filter:brightness(1.06)}
+.hp-play-btn svg{width:24px;height:24px}
+.hp-play-btn.playing{
+  background:var(--bg-input);color:var(--cyan);border-color:var(--border);
+  box-shadow:none;
+}
+
+/* 曲目信息 */
+.hp-track{flex:1 1 200px;min-width:160px}
+.hp-track-name{font-size:.95rem;font-weight:600;color:var(--text)}
+.hp-track-time{
+  font-size:.8rem;color:var(--text-muted);
+  font-variant-numeric:tabular-nums;margin-top:2px;
+}
+
+/* 注意：内容不再因耳机连接状态而隐藏，进入页面即直接展示全部模块 */
+
+/* 声道检测面板 */
+.hp-channel-panel{margin-bottom:20px}
+.hp-channel-status{
+  font-size:.84rem;padding:10px 12px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);margin-bottom:14px;line-height:1.5;
+}
+.hp-channel-status.detecting{color:var(--text-secondary);background:var(--bg-input)}
+.hp-channel-status.done{color:var(--cyan);background:var(--cyan-subtle);border-color:transparent}
+
+/* L/R 电平条 */
+.hp-channel-meters{margin-bottom:14px}
+.hp-meter{display:flex;align-items:center;gap:10px;margin:6px 0}
+.hp-meter-label{width:16px;font-weight:700;color:var(--text-muted);font-size:.8rem}
+.hp-meter-track{flex:1;height:9px;background:var(--bg-input);border:1px solid var(--border);border-radius:5px;overflow:hidden}
+.hp-meter-fill{height:100%;width:0;background:linear-gradient(90deg,#0891b2,var(--cyan));transition:width .18s ease}
+
+/* 声道平衡滑块 */
+.hp-balance-row{display:flex;align-items:center;gap:12px;margin-top:6px}
+.hp-balance-end{font-size:.74rem;color:var(--text-muted);white-space:nowrap}
+.hp-balance-slider{flex:1;accent-color:var(--cyan);height:4px;cursor:pointer}
+.hp-balance-slider:disabled{opacity:.45;cursor:not-allowed}
+.hp-balance-value{
+  margin-top:8px;font-size:.8rem;color:var(--text-secondary);
+  text-align:center;font-variant-numeric:tabular-nums;
+}
+
+/* 波形画布 */
+.hp-waveform-wrap{
+  position:relative;height:140px;
+  background:var(--bg-input);border:1px solid var(--border);
+  border-radius:var(--radius-sm);overflow:hidden;
+}
+#hp-waveform{display:block;width:100%;height:100%}
+.hp-wave-placeholder{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);font-size:.84rem;pointer-events:none;
+}
+
+/* 音量控制行 */
+.hp-volume-row{display:flex;align-items:center;gap:12px;margin-top:16px}
+.hp-vol-icon-btn{
+  flex:0 0 auto;background:none;border:none;color:var(--text-secondary);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  padding:4px;transition:color var(--transition);
+}
+.hp-vol-icon-btn:hover{color:var(--cyan)}
+.hp-vol-icon-btn.muted{color:var(--text-muted)}
+.hp-vol-icon-btn svg{width:22px;height:22px}
+.hp-volume-slider{
+  flex:1;accent-color:var(--cyan);height:4px;cursor:pointer;
+}
+.hp-volume-value{
+  font-size:.82rem;font-weight:600;color:var(--text);
+  font-variant-numeric:tabular-nums;min-width:44px;text-align:right;
+}
+
+/* 测试音参数控件 */
+.hp-track-sub{
+  font-size:.78rem;color:var(--text-muted);margin-top:2px;
+  font-variant-numeric:tabular-nums;
+}
+.hp-tone-controls{
+  margin:4px 0 16px;
+  padding:14px 14px;
+  background:var(--bg-input);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  display:flex;flex-direction:column;gap:12px;
+}
+.hp-tone-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hp-tone-label{width:34px;font-size:.8rem;color:var(--text-muted);flex:0 0 auto}
+.hp-freq-slider{flex:1;accent-color:var(--cyan);height:4px;cursor:pointer;min-width:120px}
+.hp-freq-value{
+  font-size:.82rem;font-weight:600;color:var(--text);
+  font-variant-numeric:tabular-nums;min-width:64px;text-align:right;
+}
+.hp-wave-btns{display:flex;gap:8px;flex-wrap:wrap}
+.hp-wave-btn{
+  background:var(--bg-card);color:var(--text-secondary);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:6px 14px;font-size:.82rem;cursor:pointer;transition:all var(--transition);
+}
+.hp-wave-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.hp-wave-btn.active{
+  background:var(--cyan);color:#fff;border-color:var(--cyan);
+}
+.hp-ping-btn{
+  align-self:flex-start;
+  background:var(--bg-card);color:var(--cyan);
+  border:1px solid var(--cyan);border-radius:var(--radius-sm);
+  padding:9px 18px;font-size:.84rem;font-weight:600;cursor:pointer;transition:all var(--transition);
+}
+.hp-ping-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.hp-ping-btn.active,.hp-ping-btn:disabled{
+  opacity:.6;cursor:not-allowed;transform:none;
+}
+
+/* 响应式 */
+@media(max-width:600px){
+  .hp-player{gap:12px}
+  .hp-balance-row{gap:8px}
+  .hp-tone-row{gap:8px}
+  .hp-freq-slider{min-width:80px}
+}
