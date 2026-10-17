@@ -16,14 +16,16 @@
 <link rel="stylesheet" href="css/screen-detector.css">
 <link rel="stylesheet" href="css/headphone-detector.css">
 <link rel="stylesheet" href="css/headphone-audio.css">
-<link rel="stylesheet" href="css/network-detector.css">
-<link rel="stylesheet" href="css/hardware-detector.css">
 </head>
 <body>
 
 <!-- ==================== 主页 ==================== -->
 <div id="home-page" class="page active">
   <div class="home-container">
+    <div class="home-head">
+      <h1>硬件检测</h1>
+      <p>鼠标 · 键盘 · 手柄 · 屏幕 · 耳机 —— 在浏览器内完成一轮外设自检</p>
+    </div>
     <div class="card-grid">
       <button class="detection-card" onclick="navigateTo('mouse')">
         <div class="card-icon-wrap mouse">
@@ -79,34 +81,6 @@
         <div class="card-title">耳机检测</div>
         <div class="card-desc">连接状态监测 · 设备识别 · 事件回调</div>
       </button>
-
-      <button class="detection-card" onclick="navigateTo('network')">
-        <div class="card-icon-wrap network">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
-            <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
-            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
-            <line x1="12" y1="20" x2="12.01" y2="20"/>
-          </svg>
-        </div>
-        <div class="card-title">网络检测</div>
-        <div class="card-desc">在线状态 · 连接类型 · 实测延迟</div>
-      </button>
-
-      <button class="detection-card" onclick="navigateTo('hardware')">
-        <div class="card-icon-wrap hardware">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="4" y="4" width="16" height="16" rx="2"/>
-            <rect x="9" y="9" width="6" height="6"/>
-            <line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/>
-            <line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/>
-            <line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/>
-            <line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/>
-          </svg>
-        </div>
-        <div class="card-title">硬件配置</div>
-        <div class="card-desc">CPU · 内存 · GPU · 电池 · 系统</div>
-      </button>
     </div>
   </div>
   <footer class="home-footer">
@@ -130,13 +104,13 @@
   </div>
   <div class="sub-content">
     <p class="section-title">移动追踪</p>
-    <div class="mouse-track-zone" id="mouse-track-zone">
-      <div class="crosshair-h" id="crosshair-h"></div>
-      <div class="crosshair-v" id="crosshair-v"></div>
-      <div class="coord-tip" id="coord-tip">X: 0, Y: 0</div>
-      <div class="track-hint">在此区域内移动鼠标</div>
-    </div>
-    <div class="panel-grid">
+    <div class="layout-split mouse-hero">
+      <div class="mouse-track-zone" id="mouse-track-zone">
+        <div class="crosshair-h" id="crosshair-h"></div>
+        <div class="crosshair-v" id="crosshair-v"></div>
+        <div class="coord-tip" id="coord-tip">X: 0, Y: 0</div>
+        <div class="track-hint">在此区域内移动鼠标</div>
+      </div>
       <div class="panel">
         <h3>坐标信息</h3>
         <div class="metric"><span class="metric-label">页面 X</span><span class="metric-value" id="m-page-x">0</span></div>
@@ -144,6 +118,8 @@
         <div class="metric"><span class="metric-label">视口 X</span><span class="metric-value" id="m-client-x">0</span></div>
         <div class="metric"><span class="metric-label">视口 Y</span><span class="metric-value" id="m-client-y">0</span></div>
       </div>
+    </div>
+    <div class="panel-grid">
       <div class="panel">
         <h3>按键状态</h3>
         <div class="indicator-row">
@@ -174,14 +150,14 @@
     <span class="nav-status"><span class="status-dot" id="kb-status-dot"></span><span id="kb-status-text">监测中</span></span>
   </div>
   <div class="sub-content">
-    <p class="section-title">当前按键</p>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="indicator-row" id="kb-active-keys">
-        <span style="color:var(--text-muted);font-size:.8rem">等待按键...</span>
-      </div>
-    </div>
-
+    <p class="section-title">实时按键</p>
     <div class="panel-grid">
+      <div class="panel">
+        <h3>当前按键</h3>
+        <div class="indicator-row" id="kb-active-keys">
+          <span style="color:var(--text-muted);font-size:.8rem">等待按键...</span>
+        </div>
+      </div>
       <div class="panel">
         <h3>按键详情</h3>
         <div class="metric"><span class="metric-label">按键 (key)</span><span class="metric-value" id="kb-last-key">—</span></div>
@@ -194,8 +170,9 @@
     <p class="section-title">108 键全键盘布局</p>
     <div class="keyboard-wrap" id="kb-layout"></div>
 
+    <p class="section-title">按键事件流</p>
     <div class="key-info-panel">
-      <div class="key-history" id="kb-history">
+      <div class="key-history scroll-y" id="kb-history">
         <div class="key-history-empty">按下任意键开始记录...</div>
       </div>
     </div>
@@ -213,17 +190,15 @@
     <span class="nav-status"><span class="status-dot" id="gp-status-dot"></span><span id="gp-status-text">监测中</span></span>
   </div>
   <div class="sub-content">
-    <div class="panel-grid" id="gp-connection-panel">
-      <div class="panel" style="grid-column:1/-1">
-        <div style="text-align:center;padding:16px" id="gp-connection-status">
-          <span style="color:var(--text-muted)">正在检测手柄连接...</span>
-        </div>
+    <div class="panel gp-connection-bar" id="gp-connection-panel">
+      <div class="gp-connection-status" id="gp-connection-status">
+        <span style="color:var(--text-muted)">正在检测手柄连接...</span>
       </div>
     </div>
 
     <div id="gp-visual-panel" style="display:none">
       <p class="section-title">摇杆 & 肩键可视化</p>
-      <div class="panel" style="margin-bottom:16px">
+      <div class="panel" style="margin-bottom:var(--space)">
         <div class="gamepad-visual-wrap" id="gp-visual"></div>
       </div>
     </div>
@@ -253,6 +228,7 @@
     <p class="section-title">屏幕信息</p>
     <div class="panel-grid">
       <div class="panel">
+        <h3>显示参数</h3>
         <div class="metric"><span class="metric-label">物理分辨率</span><span class="metric-value" id="sc-resolution">—</span></div>
         <div class="metric"><span class="metric-label">可用区域</span><span class="metric-value" id="sc-avail">—</span></div>
         <div class="metric"><span class="metric-label">设备像素比</span><span class="metric-value" id="sc-dpr">—</span></div>
@@ -260,6 +236,7 @@
         <div class="metric"><span class="metric-label">刷新率</span><span class="metric-value" id="sc-refresh-rate">检测中...</span></div>
       </div>
       <div class="panel">
+        <h3>窗口与交互</h3>
         <div class="metric"><span class="metric-label">窗口尺寸</span><span class="metric-value" id="sc-window">—</span></div>
         <div class="metric"><span class="metric-label">屏幕方向</span><span class="metric-value" id="sc-orientation">—</span></div>
         <div class="metric"><span class="metric-label">触摸支持</span><span class="metric-value" id="sc-touch">—</span></div>
@@ -283,20 +260,22 @@
       </div>
     </div>
 
-    <p class="section-title">纯色 / 坏点检测 <span style="font-weight:400;font-size:.73rem;color:var(--text-muted)">（点击进入全屏）</span></p>
-    <div class="color-test-area" id="color-test-area" style="background:#000" onclick="goFullscreenColorTest()">
-      点击进入全屏检测 · 或点击下方色块切换
-    </div>
-    <div class="color-palette" id="color-palette">
-      <div class="color-swatch" style="background:#fff" data-color="#ffffff" onclick="event.stopPropagation();setColorTest('#ffffff')"></div>
-      <div class="color-swatch" style="background:#000" data-color="#000000" onclick="event.stopPropagation();setColorTest('#000000')"></div>
-      <div class="color-swatch" style="background:#f00" data-color="#ff0000" onclick="event.stopPropagation();setColorTest('#ff0000')"></div>
-      <div class="color-swatch" style="background:#0f0" data-color="#00ff00" onclick="event.stopPropagation();setColorTest('#00ff00')"></div>
-      <div class="color-swatch" style="background:#00f" data-color="#0000ff" onclick="event.stopPropagation();setColorTest('#0000ff')"></div>
-      <div class="color-swatch" style="background:#ff0" data-color="#ffff00" onclick="event.stopPropagation();setColorTest('#ffff00')"></div>
-      <div class="color-swatch" style="background:#0ff" data-color="#00ffff" onclick="event.stopPropagation();setColorTest('#00ffff')"></div>
-      <div class="color-swatch" style="background:#f0f" data-color="#ff00ff" onclick="event.stopPropagation();setColorTest('#ff00ff')"></div>
-      <div class="color-swatch" style="background:#888" data-color="#808080" onclick="event.stopPropagation();setColorTest('#808080')"></div>
+    <p class="section-title">纯色 / 坏点检测 <span style="font-weight:400;font-size:.73rem;color:var(--text-muted);text-transform:none;letter-spacing:0">（点击进入全屏）</span></p>
+    <div class="layout-split color-test-layout">
+      <div class="color-test-area" id="color-test-area" style="background:#000" onclick="goFullscreenColorTest()">
+        点击进入全屏检测 · 或点击右/下方色块切换
+      </div>
+      <div class="color-palette" id="color-palette">
+        <div class="color-swatch" style="background:#fff" data-color="#ffffff" onclick="event.stopPropagation();setColorTest('#ffffff')"></div>
+        <div class="color-swatch" style="background:#000" data-color="#000000" onclick="event.stopPropagation();setColorTest('#000000')"></div>
+        <div class="color-swatch" style="background:#f00" data-color="#ff0000" onclick="event.stopPropagation();setColorTest('#ff0000')"></div>
+        <div class="color-swatch" style="background:#0f0" data-color="#00ff00" onclick="event.stopPropagation();setColorTest('#00ff00')"></div>
+        <div class="color-swatch" style="background:#00f" data-color="#0000ff" onclick="event.stopPropagation();setColorTest('#0000ff')"></div>
+        <div class="color-swatch" style="background:#ff0" data-color="#ffff00" onclick="event.stopPropagation();setColorTest('#ffff00')"></div>
+        <div class="color-swatch" style="background:#0ff" data-color="#00ffff" onclick="event.stopPropagation();setColorTest('#00ffff')"></div>
+        <div class="color-swatch" style="background:#f0f" data-color="#ff00ff" onclick="event.stopPropagation();setColorTest('#ff00ff')"></div>
+        <div class="color-swatch" style="background:#888" data-color="#808080" onclick="event.stopPropagation();setColorTest('#808080')"></div>
+      </div>
     </div>
 
     <div class="screen-actions">
@@ -321,6 +300,7 @@
     <span class="page-title">耳机检测</span>
   </div>
     <div class="sub-content">
+    <p class="section-title">音频输出测试</p>
     <!-- 音乐播放检测：实时波形 + 音量控制 -->
     <div class="panel hp-audio-panel hp-detect-content">
       <h3>音乐播放检测 · 实时波形</h3>
@@ -394,6 +374,7 @@
     </div>
 
     <!-- 设备列表 + 事件日志 -->
+    <p class="section-title">设备与事件</p>
     <div class="panel-grid hp-detect-content">
       <div class="panel">
         <h3>音频输出设备</h3>
@@ -424,145 +405,6 @@
   </div>
 </div>
 
-<!-- ==================== 网络检测 ==================== -->
-<div id="network-page" class="page">
-  <div class="nav-bar">
-    <button class="back-btn" onclick="navigateTo('home')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      返回
-    </button>
-    <span class="page-title">网络检测</span>
-    <span class="nav-status"><span class="status-dot" id="net-status-dot"></span><span id="net-status-text">检测中</span></span>
-  </div>
-  <div class="sub-content">
-    <p class="section-title">连接概览</p>
-    <div class="panel-grid">
-      <div class="panel">
-        <h3>实时状态</h3>
-        <div class="net-online-badge" id="net-online-badge">在线</div>
-        <div class="metric"><span class="metric-label">连接类型</span><span class="metric-value" id="net-type">—</span></div>
-        <div class="metric"><span class="metric-label">有效类型</span><span class="metric-value" id="net-effective">—</span></div>
-        <div class="metric"><span class="metric-label">下行带宽</span><span class="metric-value" id="net-downlink">—</span></div>
-        <div class="metric"><span class="metric-label">网络 RTT</span><span class="metric-value" id="net-rtt">—</span></div>
-        <div class="metric"><span class="metric-label">省流量模式</span><span class="metric-value" id="net-savedata">—</span></div>
-      </div>
-      <div class="panel">
-        <h3>实测延迟</h3>
-        <div class="net-ping-big" id="net-ping-big">测速中…</div>
-        <div class="metric"><span class="metric-label">最小</span><span class="metric-value" id="net-ping-min">—</span></div>
-        <div class="metric"><span class="metric-label">平均</span><span class="metric-value" id="net-ping-avg">—</span></div>
-        <div class="metric"><span class="metric-label">最大</span><span class="metric-value" id="net-ping-max">—</span></div>
-        <div class="metric"><span class="metric-label">样本数</span><span class="metric-value" id="net-ping-count">—</span></div>
-      </div>
-    </div>
-
-    <p class="section-title">网络地址</p>
-    <div class="panel-grid">
-      <div class="panel">
-        <h3>IP 地址</h3>
-        <div class="metric"><span class="metric-label">本机 IP（局域网）</span><span class="metric-value" id="net-local-ip">检测中…</span></div>
-        <div class="metric"><span class="metric-label">公网 IP</span><span class="metric-value" id="net-public-ip">检测中…</span></div>
-        <div class="metric"><span class="metric-label">地理位置</span><span class="metric-value" id="net-geo">—</span></div>
-        <div class="metric"><span class="metric-label">运营商 / ISP</span><span class="metric-value" id="net-isp">—</span></div>
-      </div>
-      <div class="panel">
-        <h3>路由与 DNS</h3>
-        <div class="metric"><span class="metric-label">子网掩码</span><span class="metric-value net-na" id="net-subnet">浏览器无法读取</span></div>
-        <div class="metric"><span class="metric-label">默认网关</span><span class="metric-value net-na" id="net-gateway">浏览器无法读取</span></div>
-        <div class="metric"><span class="metric-label">DNS 服务器</span><span class="metric-value net-na" id="net-dns">浏览器无法读取</span></div>
-        <p class="net-note">说明：子网掩码、默认网关、DNS 服务器属于操作系统网络栈信息，浏览器出于安全与隐私限制无法读取。如需此类信息，请改用系统命令（如 <code>ipconfig</code> / <code>ifconfig</code>）或在本项目加入后端代理转发。</p>
-      </div>
-    </div>
-
-    <p class="section-title">实时延迟曲线</p>
-    <div class="panel">
-      <canvas id="net-ping-chart" class="net-ping-chart"></canvas>
-      <div class="net-ping-hint">每 2 秒同域探测一次往返延迟</div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== 硬件配置 ==================== -->
-<div id="hardware-page" class="page">
-  <div class="nav-bar">
-    <button class="back-btn" onclick="navigateTo('home')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      返回
-    </button>
-    <span class="page-title">硬件配置</span>
-  </div>
-  <div class="sub-content">
-    <p class="section-title">处理器与内存</p>
-    <div class="panel-grid">
-      <div class="panel">
-        <h3>CPU / 内存</h3>
-        <div class="metric"><span class="metric-label">逻辑核心数</span><span class="metric-value" id="hw-cpu-cores">—</span></div>
-        <div class="metric"><span class="metric-label">设备内存</span><span class="metric-value" id="hw-memory">—</span></div>
-        <div class="metric"><span class="metric-label">架构 / 平台</span><span class="metric-value" id="hw-platform">—</span></div>
-      </div>
-      <div class="panel">
-        <h3>显示</h3>
-        <div class="metric"><span class="metric-label">分辨率</span><span class="metric-value" id="hw-screen">—</span></div>
-        <div class="metric"><span class="metric-label">设备像素比</span><span class="metric-value" id="hw-dpr">—</span></div>
-        <div class="metric"><span class="metric-label">色彩深度</span><span class="metric-value" id="hw-color-depth">—</span></div>
-        <div class="metric"><span class="metric-label">触摸点数</span><span class="metric-value" id="hw-touch">—</span></div>
-      </div>
-    </div>
-
-    <p class="section-title">图形处理器（GPU）<span style="font-weight:400;color:var(--text-muted)">— 检测到 <span id="hw-gpu-count">0</span> 块</span></p>
-    <div class="panel">
-      <div class="hw-gpu-list" id="hw-gpu-list"></div>
-    </div>
-
-    <p class="section-title">存储</p>
-    <div class="panel-grid">
-      <div class="panel">
-        <h3>站点存储配额</h3>
-        <div class="metric"><span class="metric-label">已用</span><span class="metric-value" id="hw-storage-usage">—</span></div>
-        <div class="metric"><span class="metric-label">配额</span><span class="metric-value" id="hw-storage-quota">—</span></div>
-        <p class="hw-note">说明：浏览器出于安全限制无法读取物理硬盘（型号 / 容量 / 剩余空间）。此处显示的是当前站点（origin）可用的 Web Storage 配额，并非硬盘真实数据。</p>
-      </div>
-      <div class="panel">
-        <h3>电池</h3>
-        <div class="metric"><span class="metric-label">剩余电量</span><span class="metric-value" id="hw-battery-level">—</span></div>
-        <div class="metric"><span class="metric-label">充电状态</span><span class="metric-value" id="hw-battery-charging">—</span></div>
-      </div>
-    </div>
-
-    <p class="section-title">更多配置</p>
-    <div class="panel-grid">
-      <div class="panel">
-        <h3>系统与区域</h3>
-        <div class="metric"><span class="metric-label">时区</span><span class="metric-value" id="hw-tz">—</span></div>
-        <div class="metric"><span class="metric-label">CPU 架构</span><span class="metric-value" id="hw-arch">—</span></div>
-        <div class="metric"><span class="metric-label">色彩空间</span><span class="metric-value" id="hw-color-gamut">—</span></div>
-        <div class="metric"><span class="metric-label">像素深度</span><span class="metric-value" id="hw-pixel-depth">—</span></div>
-        <div class="metric"><span class="metric-label">移动设备</span><span class="metric-value" id="hw-mobile">—</span></div>
-      </div>
-      <div class="panel">
-        <h3>浏览器标识</h3>
-        <div class="metric"><span class="metric-label">UA Brands</span><span class="metric-value hw-ua" id="hw-ua-brands">—</span></div>
-        <div class="metric"><span class="metric-label">屏幕方向</span><span class="metric-value" id="hw-orientation">—</span></div>
-      </div>
-    </div>
-
-    <p class="section-title">浏览器环境</p>
-    <div class="panel-grid">
-      <div class="panel">
-        <h3>浏览器 / 操作系统</h3>
-        <div class="metric"><span class="metric-label">浏览器</span><span class="metric-value" id="hw-browser">—</span></div>
-        <div class="metric"><span class="metric-label">操作系统</span><span class="metric-value" id="hw-os">—</span></div>
-        <div class="metric"><span class="metric-label">语言</span><span class="metric-value" id="hw-lang">—</span></div>
-        <div class="metric"><span class="metric-label">User-Agent</span><span class="metric-value hw-ua" id="hw-ua">—</span></div>
-      </div>
-      <div class="panel">
-        <h3>能力支持</h3>
-        <div class="indicator-row" id="hw-capabilities"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- ============================================================
      脚本（按依赖顺序加载，defer 确保 HTML 解析完成后执行）
      顺序：各检测器模块 → 导航 → 初始化
@@ -573,8 +415,6 @@
 <script src="js/screen-detector.js" defer></script>
 <script src="js/headphone-detector.js" defer></script>
 <script src="js/headphone-audio.js" defer></script>
-<script src="js/network-detector.js" defer></script>
-<script src="js/hardware-detector.js" defer></script>
 <script src="js/navigation.js" defer></script>
 <script src="js/main.js" defer></script>
 </body>
