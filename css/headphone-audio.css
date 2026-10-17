@@ -5,7 +5,7 @@
    ================================================================ */
 
 /* 面板容器 */
-.hp-audio-panel{margin-bottom:20px}
+.hp-audio-panel{margin-bottom:var(--space)}
 
 /* 播放器行 */
 .hp-player{
@@ -36,7 +36,7 @@
 /* 注意：内容不再因耳机连接状态而隐藏，进入页面即直接展示全部模块 */
 
 /* 声道检测面板 */
-.hp-channel-panel{margin-bottom:20px}
+.hp-channel-panel{margin-bottom:var(--space)}
 .hp-channel-status{
   font-size:.84rem;padding:10px 12px;border-radius:var(--radius-sm);
   border:1px solid var(--border);margin-bottom:14px;line-height:1.5;
@@ -63,7 +63,7 @@
 
 /* 波形画布 */
 .hp-waveform-wrap{
-  position:relative;height:140px;
+  position:relative;height:160px;
   background:var(--bg-input);border:1px solid var(--border);
   border-radius:var(--radius-sm);overflow:hidden;
 }
@@ -133,9 +133,20 @@
 }
 
 /* 响应式 */
+@media(min-width:900px){
+  /* 测试音参数：频率 / 波形 / 声道测试 一行三列 */
+  .hp-tone-controls{
+    display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) auto;
+    align-items:center;gap:10px 20px;
+  }
+  .hp-tone-row{flex-wrap:nowrap}
+  .hp-tone-row:last-child{justify-content:flex-end}
+  .hp-ping-btn{align-self:center;white-space:nowrap}
+}
 @media(max-width:600px){
   .hp-player{gap:12px}
   .hp-balance-row{gap:8px}
   .hp-tone-row{gap:8px}
   .hp-freq-slider{min-width:80px}
+  .hp-waveform-wrap{height:130px}
 }
