@@ -14,8 +14,6 @@ function navigateTo(page){
   else if(page==='keyboard')startKeyboardDetector();
   else if(page==='gamepad')startGamepadDetector();
   else if(page==='headphone')startHeadphoneDetector();
-  else if(page==='network')startNetworkDetector();
-  else if(page==='hardware')startHardwareDetector();
   else if(page==='screen'){updateScreenInfo();detectRefreshRate();startRefreshAnims()}
   exitFullscreenColorTest();
 }
@@ -25,7 +23,5 @@ function stopAllDetectors(){
   stopKeyboardDetector();
   stopGamepadDetector();
   stopHeadphoneDetector();
-  stopNetworkDetector();
-  stopHardwareDetector();
   stopRefreshAnims();
 }
