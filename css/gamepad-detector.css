@@ -1,10 +1,19 @@
 /* ================================================================
    gamepad-detector.css — 手柄检测页面样式
-   依赖：main.css（CSS 变量 / .panel / .metric）
+   依赖：main.css（CSS 变量 / .panel / .metric / .layout-split）
    ================================================================ */
 
+/* 连接状态条：横贯整行，紧凑高度 */
+.gp-connection-bar{
+  padding:16px 22px;margin-bottom:var(--space);
+  display:flex;align-items:center;justify-content:center;
+  min-height:68px;
+}
+.gp-connection-status{width:100%;text-align:center;font-size:.86rem;line-height:1.6}
+
+/* 手柄示意图 */
 .gamepad-visual-wrap{
-  position:relative;width:100%;max-width:560px;margin:0 auto;padding:10px 0;
+  position:relative;width:100%;max-width:620px;margin:0 auto;padding:6px 0;
 }
 .gamepad-visual-wrap svg{width:100%;height:auto;display:block}
 .joystick-line{stroke-linecap:round;transition:all .03s linear}
@@ -12,8 +21,10 @@
 .shoulder-rect{
   rx:6;transition:all .08s ease;
 }
+
+/* 按钮网格：自适应列宽，不再固定 4 列 / 固定宽度 */
 .gamepad-btn-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:420px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(62px,1fr));gap:8px;
 }
 .gbtn{
   display:flex;flex-direction:column;align-items:center;gap:4px;
@@ -26,7 +37,13 @@
 .axis-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:4px}
 .axis-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .05s linear}
 
+/* 摇杆轴值：标签 + 数值同行，进度条独占下一行 */
+#gp-axes .metric{flex-wrap:wrap;gap:0 12px;padding:8px 0}
+#gp-axes .metric .metric-value{margin-left:auto}
+#gp-axes .axis-bar{flex:0 0 100%;order:3;margin-top:6px}
+
 /* 响应式 */
 @media(max-width:600px){
-  .gamepad-btn-grid{grid-template-columns:repeat(3,1fr)}
+  .gamepad-btn-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .gp-connection-bar{padding:14px 16px;min-height:60px}
 }
