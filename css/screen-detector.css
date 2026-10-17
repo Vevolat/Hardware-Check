@@ -3,21 +3,27 @@
    依赖：main.css（CSS 变量 / .btn / .panel）
    ================================================================ */
 
+/* 纯色测试区：宽屏与右侧色板同高并排 */
 .color-test-area{
-  width:100%;height:260px;border-radius:var(--radius);border:1px solid var(--border);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;min-height:260px;border-radius:var(--radius);border:1px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:16px;
   font-size:.95rem;color:rgba(128,128,128,.5);font-weight:600;
-  transition:background-color .3s ease;margin-bottom:14px;
+  transition:background-color .3s ease;
 }
-.color-palette{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+/* 色板：3 × 3 网格，填满侧栏高度 */
+.color-palette{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-auto-rows:minmax(52px,1fr);gap:8px;
+}
 .color-swatch{
-  width:44px;height:44px;border-radius:var(--radius-xs);border:2px solid transparent;
+  width:100%;height:100%;border-radius:var(--radius-sm);border:2px solid transparent;
   cursor:pointer;transition:all var(--transition);
 }
 .color-swatch:hover{border-color:var(--text);transform:scale(1.12)}
 .color-swatch.active{border-color:var(--accent);box-shadow:0 0 14px rgba(59,130,246,.3)}
 
-.screen-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.screen-actions{display:flex;gap:10px;flex-wrap:wrap}
 
 /* 全屏颜色测试遮罩 */
 .fullscreen-overlay{
@@ -54,7 +60,8 @@
 
 /* 响应式 */
 @media(max-width:600px){
-  .color-test-area{height:180px}
+  .color-test-area{height:auto;min-height:180px}
+  .color-palette{grid-auto-rows:minmax(48px,1fr)}
   .refresh-grid{grid-template-columns:1fr}
   .screen-actions{flex-direction:column}
 }
