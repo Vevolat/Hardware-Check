@@ -1,12 +1,13 @@
 /* ================================================================
    mouse-detector.css — 鼠标检测页面样式
-   依赖：main.css（CSS 变量 / .panel / .indicator）
+   依赖：main.css（CSS 变量 / .panel / .indicator / .layout-split）
    ================================================================ */
 
+/* 追踪区：宽屏与「坐标信息」并排，高度随同行面板拉伸 */
 .mouse-track-zone{
-  position:relative;width:100%;height:300px;background:var(--bg-input);
+  position:relative;width:100%;height:100%;min-height:290px;background:var(--bg-input);
   border:2px dashed var(--border);border-radius:var(--radius);overflow:hidden;
-  margin-bottom:20px;cursor:crosshair;
+  cursor:crosshair;
 }
 .mouse-track-zone .crosshair-h{position:absolute;left:0;right:0;height:1px;background:rgba(59,130,246,.4);pointer-events:none}
 .mouse-track-zone .crosshair-v{position:absolute;top:0;bottom:0;width:1px;background:rgba(59,130,246,.4);pointer-events:none}
@@ -20,6 +21,11 @@
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   color:var(--text-muted);font-size:.85rem;pointer-events:none;
 }
+
+/* 坐标面板：与追踪区等高，指标均匀分布 */
+.mouse-hero .panel{display:flex;flex-direction:column}
+.mouse-hero .panel .metric{flex:1;min-height:40px}
+
 .click-ripple{
   position:absolute;pointer-events:none;width:20px;height:20px;border-radius:50%;
   border:2px solid var(--accent);transform:translate(-50%,-50%);
@@ -28,6 +34,10 @@
 @keyframes rippleOut{to{width:80px;height:80px;opacity:0}}
 
 /* 响应式 */
+@media(max-width:900px){
+  .mouse-track-zone{min-height:240px}
+  .mouse-hero .panel .metric{flex:none;min-height:0}
+}
 @media(max-width:600px){
-  .mouse-track-zone{height:200px}
+  .mouse-track-zone{min-height:200px;height:200px}
 }
