@@ -5,9 +5,12 @@
 
 .keyboard-wrap{
   background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px 14px 18px;overflow-x:auto;
+  padding:16px 14px 18px;overflow-x:auto;margin-bottom:var(--space);
   box-shadow:var(--shadow-sm);
+  scrollbar-width:thin;scrollbar-color:var(--border-light) transparent;
 }
+.keyboard-wrap::-webkit-scrollbar{height:8px}
+.keyboard-wrap::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:8px}
 /* 功能键行（横跨全部区域） */
 .kb-func-row{display:flex;gap:10px;margin-bottom:6px;justify-content:center}
 .kb-func-main{display:flex;gap:4px}
@@ -41,9 +44,11 @@
 .key-key.spacer{background:transparent;border:none;min-width:24px}
 .key-gap{width:24px;flex-shrink:0}
 
-.key-info-panel{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px}
+.key-info-panel{display:flex;gap:var(--gap);flex-wrap:wrap}
+/* 「当前按键」面板与右侧详情等高，内容垂直居中 */
+#kb-active-keys{min-height:118px;align-items:center;flex-wrap:wrap}
 .key-history{
-  flex:1;min-width:280px;max-height:200px;overflow-y:auto;
+  flex:1;min-width:280px;max-height:220px;overflow-y:auto;
   background:var(--bg-card);border:1px solid var(--border);
   border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow-sm);
 }
